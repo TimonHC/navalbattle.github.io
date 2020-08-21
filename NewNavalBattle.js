@@ -25,8 +25,10 @@ class Field {
 
         isSuroundingCellsFree(cell) {
         let result = false;
+        cell--;
+
             if (
-                ((this.battleField[cell-11] === undefined) || (this.battleField[cell-11] === '@'))
+                (this.battleField[cell-11] === undefined || this.battleField[cell-11] === '@')
                 && (this.battleField[cell-10] === '@' || this.battleField[cell-10] === undefined)
                 && (this.battleField[cell-9] === '@' || this.battleField[cell-9] === undefined)
                 && (this.battleField[cell+1] === '@' || this.battleField[cell+1] === undefined)
@@ -34,7 +36,8 @@ class Field {
                 && (this.battleField[cell+10] === '@' || this.battleField[cell+10] === undefined)
                 && (this.battleField[cell+9] === '@' || this.battleField[cell+9] === undefined)
                 && (this.battleField[cell-1] === '@' || this.battleField[cell-1] === undefined)
-            ) result = true;
+            ) { result = true; }
+
             return result;
 }
 
