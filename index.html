@@ -28,40 +28,22 @@
     </div>
 
     <script id="fill-game-fields">
-        var playerField = document.getElementById("playerField");
-        var enemyField = document.getElementById("enemyField");
-        function fillPlayerField() {
-            for(var i=0; i<100; i++) {
-                let square = document.createElement("div");
-                square.classList.add("square");
-                switch (myField.battleField[i]) {
-                    case "@":
-                        square.classList.add("incognito");
-                        break;
-                    case "#":
-                        square.classList.add("ship");
-                        break;
-                    case "X":
-                        square.classList.add("hit");
-                        break;
-                    case "*":
-                        square.classList.add("empty");
-                        break;
-                    default:
-                        break;
-                }
-                playerField.appendChild(square);
-            }
-        }
 
-        function fillEnemyField() {
+
+        window.onload = function() {
+            var playerField = document.getElementById("playerField");
+            var enemyField = document.getElementById("enemyField");
             var allClickableSquares = [];
-            for(i=0; i<100; i++) {
+            initField(playerField);
+
+            for(var i=0; i<100; i++) {
                 let square = document.createElement("div");
                 square.classList.add("square", "clickable");
                 allClickableSquares.push(square);
                 square.addEventListener('click', function (event) {
-                  playerAttack(allClickableSquares.indexOf(event.target));
+                    let index = allClickableSquares.indexOf(event.target);
+                    playerAttack(index);
+                    changeClass(this, index, botField);
                 });
                 switch(botField.battleField[i]) {
                     case "@": square.classList.add("incognito");
@@ -77,12 +59,10 @@
                 }
                 enemyField.appendChild(square);
             }
-        }
 
 
-        window.onload = function() {
-            fillPlayerField();
-            fillEnemyField();
+
+
         };
 
     </script>

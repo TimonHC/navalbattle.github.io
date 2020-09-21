@@ -1,3 +1,4 @@
+
 class Field {
 
     constructor(player){
@@ -161,87 +162,6 @@ class Field {
 }
 
 class Cannon {
-
-    coordsConverter(letter, number) {
-
-        let row = 0, col = 0;
-
-    switch (letter) {
-        case 'a' :
-            col += 1;
-            break;
-        case 'b':
-            col += 2;
-            break;
-        case 'c':
-            col += 3;
-            break;
-        case 'd':
-            col += 4;
-            break;
-        case 'e':
-            col += 5;
-            break;
-        case 'f':
-            col += 6;
-            break;
-        case 'g':
-            col += 7;
-            break;
-        case 'h':
-            col += 8;
-            break;
-        case 'i':
-            col += 9;
-            break;
-        case 'j':
-            col;
-            break;
-        default :
-            console.log('wrong coords of the column');
-            break;
-    }
-
-        switch (number) {
-            case 1:
-                row;
-                break;
-            case 2:
-                row += 10;
-                break;
-            case 3:
-                row += 20;
-                break;
-            case 4:
-                row += 30;
-                break;
-            case 5:
-                row += 40;
-                break;
-            case 6:
-                row += 50;
-                break;
-            case 7:
-                row += 60;
-                break;
-            case 8:
-                row += 70;
-                break;
-            case 9:
-                row += 80;
-                break;
-            case 10:
-                row += 90;
-                break;
-            default :
-                console.log('wrong coords of the row');
-                break;
-        }
-
-        return (col + row);
-    }
-
-
     botGetAttackCoords() {
         botLastSuccessAttackCoords;
         botNextAttackCoord;
@@ -251,12 +171,41 @@ class Cannon {
         }
     }
 }
+function changeClass(item, index, field) {
+    item.classList.toggle('incognito', false);
+    item.classList.toggle('ship', false);
+    item.classList.toggle('hit', false);
+    item.classList.toggle('empty', false);
+
+    switch(field.battleField[index]) {
+        case "@": item.classList.add("incognito");
+            break;
+        case "#": item.classList.add("ship");
+            break;
+        case "X": item.classList.add("hit");
+            break;
+        case "*": item.classList.add("empty");
+            break;
+        default:
+            break;
+    }
+}
 
 function playerAttack(index) {
-    switch (botField.battleField[index]) {        case '@': alert('pusto'); break;
-        case '#': alert('ship'); break;
-        case 'X': alert('fire'); break;
-        case '*': alert('uje bilo'); break;
+    switch (botField.battleField[index]) {
+        case '@':
+           // alert('promah, hodit bot');
+            botField.battleField[index] = '*';
+            guessField.battleField[index] = '*';
+            break;
+        case '#':
+            //alert('popadanie! povtorno hodit igrok');
+            botField.battleField[index] = 'X';
+            guessField.battleField[index] = 'X';
+            break;
+        case 'X': //alert('Potoplennaya paluba');
+        break;
+        case '*': //alert('zavedomo izvestnaya yacheyka'); break;
 
     }
 
@@ -268,10 +217,43 @@ let botField = new Field('Bot');
 
 myField.fillField();
 myField.placeGameEntities();
-myField.printField();
+
 
 botField.fillField();
 botField.placeGameEntities();
-botField.printField();
+let guessField = botField.battleField.slice();
+
+function initField(field) {
+    for(var i=0; i<100; i++) {
+        let square = document.createElement("div");
+        square.classList.add("square");
+        field.appendChild(square);
+}
+
+
+/*
+        //square.classList.add("square");
+        switch (myField.battleField[i]) {
+            case "@":
+                square.classList.add("incognito");
+                break;
+            case "#":
+                square.classList.add("ship");
+                break;
+            case "X":
+                square.classList.add("hit");
+                break;
+            case "*":
+                square.classList.add("empty");
+                break;
+            default:
+                break;
+        }
+        playerField.appendChild(square);
+    }
+}
+*/
+
+}
 
 
