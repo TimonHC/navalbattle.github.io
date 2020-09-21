@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <link
+    href="NavalBattleStyle.css" type="text/css" rel="stylesheet"
+    >
+    <script src="NewNavalBattle.js"></script>
+    <meta charset="UTF-8">
+    <title>Naval Battle Game</title>
+
+</head>
+
+<body>
+<h1 class="main-header">NAVAL BATTLE</h1>
+
+<div id="wrapper-block">
+
+    <div class="field-wrapper">
+    <div class="field" id="playerField">
+    </div>
+    </div>
+
+    <div class="field-wrapper">
+     <div class="field" id="enemyField">
+    </div>
+    </div>
+
+    <script id="fill-game-fields">
+        var playerField = document.getElementById("playerField");
+        var enemyField = document.getElementById("enemyField");
+        function fillPlayerField() {
+            for(var i=0; i<100; i++) {
+                let square = document.createElement("div");
+                square.classList.add("square");
+                switch (myField.battleField[i]) {
+                    case "@":
+                        square.classList.add("incognito");
+                        break;
+                    case "#":
+                        square.classList.add("ship");
+                        break;
+                    case "X":
+                        square.classList.add("hit");
+                        break;
+                    case "*":
+                        square.classList.add("empty");
+                        break;
+                    default:
+                        break;
+                }
+                playerField.appendChild(square);
+            }
+        }
+
+        function fillEnemyField() {
+            var allClickableSquares = [];
+            for(i=0; i<100; i++) {
+                let square = document.createElement("div");
+                square.classList.add("square", "clickable");
+                allClickableSquares.push(square);
+                square.addEventListener('click', function (event) {
+                  playerAttack(allClickableSquares.indexOf(event.target));
+                });
+                switch(botField.battleField[i]) {
+                    case "@": square.classList.add("incognito");
+                        break;
+                    case "#": square.classList.add("ship");
+                        break;
+                    case "X": square.classList.add("hit");
+                        break;
+                    case "*": square.classList.add("empty");
+                        break;
+                    default:
+                        break;
+                }
+                enemyField.appendChild(square);
+            }
+        }
+
+
+        window.onload = function() {
+            fillPlayerField();
+            fillEnemyField();
+        };
+
+    </script>
+
+
+<div id="log">
+    <div class="res"></div>
+</div>
+
+</div>
+
+<footer>
+
+</footer>
+
+</body>
+</html>
+
+
+<!--
+<script>
+    var playerField = document.getElementById("playerField");
+    window.onload = function() {
+        for(var i=0; i<100; i++){
+            var square = document.createElement("div");
+            square.classList.add("square");
+            square.innerText = myField.battleField[i];
+
+            playerField.appendChild(square);
+        }
+    };
+
+</script>
+
+-->

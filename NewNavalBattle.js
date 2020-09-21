@@ -5,6 +5,8 @@ class Field {
         this.player = player;
     }
 
+    _FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+
     fillField() {
         for (let i = 0; i < 100; i++) {
             this.battleField.push('@');
@@ -17,13 +19,11 @@ class Field {
         return Math.floor(Math.random() * (max - min + 1)) + min; //Максимум и минимум включаются
     }
 
-
-
-        setShipDirection() {
+    setShipDirection() {
             return Math.random() >= 0.5 ? 1 : 0;
         }
 
-        isSuroundingCellsFree(cell) {
+    isSuroundingCellsFree(cell) {
         let result = false;
         cell--;
 
@@ -41,8 +41,7 @@ class Field {
             return result;
 }
 
-
-        isCanBeAttached(shipLength, startCoordinate, direction) {
+    isCanBeAttached(shipLength, startCoordinate, direction) {
 
             let cellsToOut;
             let lastCoordinate;
@@ -89,7 +88,19 @@ class Field {
             return canBeAttached;
         }
 
-        placeShip(ship) {
+        isShipSunk(coordsOfLastSuccessAttack, field) {
+        let c = coordsOfLastSuccessAttack;
+        return ((field[c - 1] || field[c + 1] || field[c + 10] || field[c - 10]) !== "#");
+        }
+
+        circleTheSunkenShipWithDots(coordsOfLastSuccessAttack) {
+            let c = coordsOfLastSuccessAttack;
+            
+
+        }
+
+
+    placeShip(ship) {
         let randomCoordinate;
         let direction;
         let canBeAttached = false;
@@ -109,12 +120,12 @@ class Field {
 
         }
 
-     printField() {
+    printField() {
         switch (this.player) {
-            case 'player' :
+            case 'Player' :
                 console.log('ПОЛЕ ИГРОКА:');
                 break;
-            case 'bot' :
+            case 'Bot' :
                 console.log('ПОЛЕ БОТА: ');
                 break;
             default :
@@ -141,25 +152,126 @@ class Field {
         console.log(result);
     }
 
-        placeFleet () {
-
+    placeGameEntities () {
+            for (let i = 0; i < this._FLEET.length; i++) {
+                this.placeShip(this._FLEET[i]);
+            }
         }
-
-
 
 }
 
-myField = new Field('player');
+class Cannon {
+
+    coordsConverter(letter, number) {
+
+        let row = 0, col = 0;
+
+    switch (letter) {
+        case 'a' :
+            col += 1;
+            break;
+        case 'b':
+            col += 2;
+            break;
+        case 'c':
+            col += 3;
+            break;
+        case 'd':
+            col += 4;
+            break;
+        case 'e':
+            col += 5;
+            break;
+        case 'f':
+            col += 6;
+            break;
+        case 'g':
+            col += 7;
+            break;
+        case 'h':
+            col += 8;
+            break;
+        case 'i':
+            col += 9;
+            break;
+        case 'j':
+            col;
+            break;
+        default :
+            console.log('wrong coords of the column');
+            break;
+    }
+
+        switch (number) {
+            case 1:
+                row;
+                break;
+            case 2:
+                row += 10;
+                break;
+            case 3:
+                row += 20;
+                break;
+            case 4:
+                row += 30;
+                break;
+            case 5:
+                row += 40;
+                break;
+            case 6:
+                row += 50;
+                break;
+            case 7:
+                row += 60;
+                break;
+            case 8:
+                row += 70;
+                break;
+            case 9:
+                row += 80;
+                break;
+            case 10:
+                row += 90;
+                break;
+            default :
+                console.log('wrong coords of the row');
+                break;
+        }
+
+        return (col + row);
+    }
+
+
+    botGetAttackCoords() {
+        botLastSuccessAttackCoords;
+        botNextAttackCoord;
+
+        if (this.botLastSuccessAttackCoords === "undefined") {
+            return this.botNextAttackCoord = Field.prototype.getRandomIntInclusive(1, 100);
+        }
+    }
+}
+
+function playerAttack(index) {
+    switch (botField.battleField[index]) {        case '@': alert('pusto'); break;
+        case '#': alert('ship'); break;
+        case 'X': alert('fire'); break;
+        case '*': alert('uje bilo'); break;
+
+    }
+
+}
+
+let myField = new Field('Player');
+let botField = new Field('Bot');
+
+
 myField.fillField();
+myField.placeGameEntities();
 myField.printField();
-myField.placeShip(4);
-myField.placeShip(3);
-myField.placeShip(3);
-myField.placeShip(2);
-myField.placeShip(2);
-myField.placeShip(2);
-myField.placeShip(1);
-myField.placeShip(1);
-myField.placeShip(1);
-myField.placeShip(1);
-myField.printField();
+
+botField.fillField();
+botField.placeGameEntities();
+botField.printField();
+
+
