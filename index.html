@@ -7,6 +7,7 @@
     href="NavalBattleStyle.css" type="text/css" rel="stylesheet"
     >
     <script src="NewNavalBattle.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <meta charset="UTF-8">
     <title>Naval Battle Game</title>
 
@@ -34,18 +35,44 @@
             var playerField = document.getElementById("playerField");
             var enemyField = document.getElementById("enemyField");
             var allClickableSquares = [];
-            initField(playerField);
 
+function fillPlayerField() {
             for(var i=0; i<100; i++) {
                 let square = document.createElement("div");
-                square.classList.add("square", "clickable");
+                square.classList.add("square");
+
+                switch(myField.battleField[i]) {
+                    case "@": square.classList.add("incognito");
+                        break;
+                    case "#": square.classList.add("ship");
+                        break;
+                    case 'X': square.classList.add("hit");
+                        break;
+                    case "*": square.classList.add("empty");
+                        break;
+                    default:
+                        break;
+                }
+                playerField.appendChild(square);
+            }
+}
+
+fillPlayerField();
+
+            for(i=0; i<100; i++) {
+                let square = document.createElement("div");
+                square.classList.add("square");
                 allClickableSquares.push(square);
-                square.addEventListener('click', function (event) {
+                square.addEventListener("click",
+                    function (event) {
                     let index = allClickableSquares.indexOf(event.target);
                     playerAttack(index);
-                    changeClass(this, index, botField);
+                    changeClass(square, index, guessField);
+                    $('.field#playerField').empty();
+                    fillPlayerField();
                 });
-                switch(botField.battleField[i]) {
+
+                switch(guessField.battleField[i]) {
                     case "@": square.classList.add("incognito");
                         break;
                     case "#": square.classList.add("ship");
@@ -59,10 +86,6 @@
                 }
                 enemyField.appendChild(square);
             }
-
-
-
-
         };
 
     </script>

@@ -172,11 +172,7 @@ class Cannon {
     }
 }
 function changeClass(item, index, field) {
-    item.classList.toggle('incognito', false);
-    item.classList.toggle('ship', false);
-    item.classList.toggle('hit', false);
-    item.classList.toggle('empty', false);
-
+    item.classList.remove('incognito','ship','empty', 'hit');
     switch(field.battleField[index]) {
         case "@": item.classList.add("incognito");
             break;
@@ -192,27 +188,53 @@ function changeClass(item, index, field) {
 }
 
 function playerAttack(index) {
+    
     switch (botField.battleField[index]) {
         case '@':
-           // alert('promah, hodit bot');
             botField.battleField[index] = '*';
             guessField.battleField[index] = '*';
+            botAttack();
             break;
         case '#':
-            //alert('popadanie! povtorno hodit igrok');
             botField.battleField[index] = 'X';
             guessField.battleField[index] = 'X';
             break;
-        case 'X': //alert('Potoplennaya paluba');
+        case 'X':
+            alert("Already known cell with sunked deck");
+            break;
+        case '*':
+            alert("Already known empty cell");
+            break;
+        default: alert("DEFAULT");
         break;
-        case '*': //alert('zavedomo izvestnaya yacheyka'); break;
-
     }
+}
 
+function botAttack() {
+    let index = botField.getRandomIntInclusive(0, 100);
+    switch (myField.battleField[index]) {
+        case '@':
+            myField.battleField[index] = '*';
+            break;
+        case '#':
+            myField.battleField[index] = 'X';
+            botAttack();
+            break;
+        case 'X':
+            alert("bot already known cell with sunked deck");
+            botAttack();
+            break;
+        case '*':
+            alert("bot already known empty cell");
+            botAttack();
+            break;
+        default: alert("DEFAULT");break;
+    }
 }
 
 let myField = new Field('Player');
 let botField = new Field('Bot');
+let guessField = new Field('Bot');
 
 
 myField.fillField();
@@ -221,7 +243,8 @@ myField.placeGameEntities();
 
 botField.fillField();
 botField.placeGameEntities();
-let guessField = botField.battleField.slice();
+guessField.fillField();
+
 
 function initField(field) {
     for(var i=0; i<100; i++) {
