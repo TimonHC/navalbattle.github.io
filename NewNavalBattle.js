@@ -121,38 +121,6 @@ class Field {
 
         }
 
-    printField() {
-        switch (this.player) {
-            case 'Player' :
-                console.log('ПОЛЕ ИГРОКА:');
-                break;
-            case 'Bot' :
-                console.log('ПОЛЕ БОТА: ');
-                break;
-            default :
-                console.log('ОШИБКА, НЕВЕРНОЕ ПОЛЕ...');
-                break;
-        }
-
-        const fieldCoords = [
-            ['\n   |A_B_C_D_E_F_G_H_I_J|',],
-            ['\n01|', '02|', '03|', '04|', '05|', '06|', '07|', '08|', '09|', '10|']
-        ];
-        let result = '';
-        console.log(fieldCoords[0][0]);
-
-        for (let i = 0; i < this.battleField.length; i++) {
-            const isRowEnd = i % 10 === 0;
-
-            if (isRowEnd)
-                result += (i === 0)
-                    ? fieldCoords[1][i / 10]
-                    : '\n' + fieldCoords[1][i / 10];
-            result += ' ' + this.battleField[i];
-        }
-        console.log(result);
-    }
-
     placeGameEntities () {
             for (let i = 0; i < this._FLEET.length; i++) {
                 this.placeShip(this._FLEET[i]);
@@ -171,6 +139,7 @@ class Cannon {
         }
     }
 }
+
 function changeClass(item, index, field) {
     item.classList.remove('incognito','ship','empty', 'hit');
     switch(field.battleField[index]) {
@@ -187,6 +156,13 @@ function changeClass(item, index, field) {
     }
 }
 
+function isGameover(field){
+    let result = true;
+    for (let i = 0; i < 100; i++) {
+       if(field.battleField[i] === '#') result = false;
+    }
+    if(result) alert('GG');
+}
 function playerAttack(index) {
     
     switch (botField.battleField[index]) {
@@ -200,14 +176,12 @@ function playerAttack(index) {
             guessField.battleField[index] = 'X';
             break;
         case 'X':
-            alert("Already known cell with sunked deck");
             break;
         case '*':
-            alert("Already known empty cell");
             break;
         default: alert("DEFAULT");
         break;
-    }
+    } isGameover(botField);
 }
 
 function botAttack() {
@@ -221,15 +195,16 @@ function botAttack() {
             botAttack();
             break;
         case 'X':
-            alert("bot already known cell with sunked deck");
+            //alert("bot already known cell with sunked deck");
             botAttack();
             break;
         case '*':
-            alert("bot already known empty cell");
+           // alert("bot already known empty cell");
             botAttack();
             break;
         default: alert("DEFAULT");break;
     }
+    isGameover(myField);
 }
 
 let myField = new Field('Player');

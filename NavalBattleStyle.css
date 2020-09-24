@@ -1,9 +1,13 @@
+
+
 * {
     margin: 0;
     padding: 0;
 }
 
 body {
+    background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/499416/demo-bg.jpg");
+    background-size: cover;
     margin: 0;
     padding: 0;
     width:100%;
@@ -12,65 +16,62 @@ body {
 h1.main-header {
     width: 100%;
     height: 10vh;
-    background: dodgerblue;
+    background: transparent;
     text-align: center;
-    font-size: 50px;
-    font-family: Arial, bold, serif;
+    font-size: 60px;
+    font-family: "Star Jedi", monospace;
+    color: orange;
+    margin: 1%;
+    padding: 1%;
 }
 
 #wrapper-block {
     position: center;
     height: 60vh;
-    background-color: black;
     width: 85%;
     margin: auto;
 }
 
 .field-wrapper {
     margin: 1.5% 1.5% 1.5% 1.5%;
-    width: 30%;
-    height: content-box;
     display: inline-block;
-    background-color: violet;
+    border: 1px solid white;
 }
 
 .field {
     display: flex;
     padding: 0;
     flex-flow: row wrap;
-    width: calc(50vmin - 10px);
-    height: calc(50vmin - 10px);
-    border: 2px solid #333;
+    width: calc(70vmin - 10px);
+    height: calc(70vmin - 10px);
 }
 
 .field#playerField {
-    border-color: green;
     float: left;
 }
 
 .field#enemyField {
-    border-color: red;
     float: right;
 }
-.res {
-    height: 50px;
-}
+
 .square{
     margin: 0;
     padding: 0;
-    width: calc(5vmin - 1px);
-    height: calc(5vmin - 1px);
-    border: 1px solid #aaa;
+    width: calc(7vmin - 1px);
+    height: calc(7vmin - 1px);
+    border: 1px solid rgba(0,0,0,0.2);
     background-color: #eee;
     box-sizing: border-box;
+    cursor: pointer;
+    transition: .3s linear;
 }
 
 .square.ship {
-    background-color: #006400;
+    background-color: slategray;
 }
 
 .square.empty {
-    background-color: cornflowerblue;
+    background-color: transparent;
 }
 
 .square.incognito {
@@ -79,6 +80,7 @@ h1.main-header {
 
 .square.hit {
     background-color: red;
+    opacity: 0.6;
 }
 
 .square:hover {
@@ -99,7 +101,6 @@ footer {
     position: absolute;
     bottom: 0;
     left: 0;
-    opacity: 0.7;
     width: 100%;
     height: 10vh;
     background-color: cornflowerblue;
