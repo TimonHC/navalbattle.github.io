@@ -1,5 +1,3 @@
-
-
 * {
     margin: 0;
     padding: 0;
@@ -8,6 +6,7 @@
 body {
     background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/499416/demo-bg.jpg");
     background-size: cover;
+    background-repeat: inherit;
     margin: 0;
     padding: 0;
     width:100%;
@@ -18,27 +17,29 @@ h1.main-header {
     height: 10vh;
     background: transparent;
     text-align: center;
-    font-size: 60px;
-    font-family: "Star Jedi", monospace;
-    color: orange;
-    margin: 1%;
-    padding: 1%;
+    font-size: 10vmin;
+    font-family: "Star Jedi", serif;
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: orange;
+    color: transparent;
 }
 
 #wrapper-block {
     position: center;
     height: 60vh;
-    width: 85%;
+    width: 100%;
     margin: auto;
+    display: inherit;
 }
 
 .field-wrapper {
-    margin: 1.5% 1.5% 1.5% 1.5%;
+    margin: 4% 6.5%;
     display: inline-block;
-    border: 1px solid white;
+    box-shadow: 0 0 10px rgba(179,130,26,0.5);
 }
 
 .field {
+
     display: flex;
     padding: 0;
     flex-flow: row wrap;
@@ -47,11 +48,10 @@ h1.main-header {
 }
 
 .field#playerField {
-    float: left;
+
 }
 
 .field#enemyField {
-    float: right;
 }
 
 .square{
@@ -59,7 +59,7 @@ h1.main-header {
     padding: 0;
     width: calc(7vmin - 1px);
     height: calc(7vmin - 1px);
-    border: 1px solid rgba(0,0,0,0.2);
+    border: 1px solid rgba(179,130,26,0.2);
     background-color: #eee;
     box-sizing: border-box;
     cursor: pointer;
@@ -67,7 +67,7 @@ h1.main-header {
 }
 
 .square.ship {
-    background-color: slategray;
+    background-color: #414a4c;
 }
 
 .square.empty {
@@ -75,12 +75,12 @@ h1.main-header {
 }
 
 .square.incognito {
-    background-color: white;
+    background-color: #dddedf;
 }
 
 .square.hit {
-    background-color: red;
-    opacity: 0.6;
+    background-color: rgb(179,26,75);
+    opacity: 0.75;
 }
 
 .square:hover {
@@ -90,10 +90,10 @@ h1.main-header {
 
 #log {
     overflow: scroll;
-    background-color: lightsteelblue;
+    background-color: #d0edf2;
     width: 100%;
     height: 10vh;
-    border-color: black;
+    border-color: #414a4c;
     border: 1px solid;
 }
 
@@ -103,5 +103,5 @@ footer {
     left: 0;
     width: 100%;
     height: 10vh;
-    background-color: cornflowerblue;
+    background-color: #d0edf2;
 }

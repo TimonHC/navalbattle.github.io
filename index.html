@@ -10,26 +10,28 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <style>
         @font-face {
-            font-family: StarWars;
+            font-family: "Star Jedi";
             src: local("Star Jedi");
-            src: url("https://get.fontspace.co/download/font/DGRW/MTNmYjZiN2U1NjRlNDM1MGE1OTgzOWRiZGFmMzgxNTIudHRm/StarJedi-DGRW.ttf")format('truetype');
+            src: url("https://get.fontspace.co/download/font/A4lL/OGYzMWMyNDE3ZDYwNGRhNGI3ZDFmOTAxYzgyMjMzMWUudHRm/StarJediHollow-A4lL.ttf")format('truetype');
 font-style: normal;
             font-weight: normal;
         }
     </style>
     <meta charset="UTF-8">
-    <title>Naval Battle Game</title>
+    <title>Space Battle</title>
 
 </head>
 
 <body>
 
 
-<h1 class="main-header">SPACE BATTLE</h1>
+<h1 class="main-header">Space battle</h1>
 
 <div id="wrapper-block">
 
     <div class="field-wrapper">
+        <div id="coordinates-numbers"></div>
+        <div id="coordinates-letters"></div>
     <div class="field" id="playerField">
     </div>
     </div>
@@ -117,20 +119,3 @@ fillPlayerField();
 </body>
 </html>
 
-
-<!--
-<script>
-    var playerField = document.getElementById("playerField");
-    window.onload = function() {
-        for(var i=0; i<100; i++){
-            var square = document.createElement("div");
-            square.classList.add("square");
-            square.innerText = myField.battleField[i];
-
-            playerField.appendChild(square);
-        }
-    };
-
-</script>
-
--->
