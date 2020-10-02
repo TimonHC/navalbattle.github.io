@@ -4,8 +4,9 @@
 <head>
 
     <link
-    href="NavalBattleStyle.css" type="text/css" rel="stylesheet"
+            href="NavalBattleStyle.css" type="text/css" rel="stylesheet"
     >
+    <link rel="shortcut icon" href="Content/slogosb.png" type="image/x-icon">
     <script src="NewNavalBattle.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     <style>
@@ -23,21 +24,19 @@ font-style: normal;
 </head>
 
 <body>
-
-
+<div class="header-container">
+<img src="Content/slogosb.png" alt="logo" id="small-logo">
 <h1 class="main-header">Space battle</h1>
-
+</div>
 <div id="wrapper-block">
 
     <div class="field-wrapper">
-        <div id="coordinates-numbers"></div>
-        <div id="coordinates-letters"></div>
-    <div class="field" id="playerField">
+    <div class="gamePanel" id="firstGamePanel">
     </div>
     </div>
 
     <div class="field-wrapper">
-     <div class="field" id="enemyField">
+     <div class="gamePanel" id="secondGamePanel">
     </div>
     </div>
 
@@ -45,16 +44,16 @@ font-style: normal;
 
 
         window.onload = function() {
-            var playerField = document.getElementById("playerField");
-            var enemyField = document.getElementById("enemyField");
+            var firstGamePanel = document.getElementById("firstGamePanel");
+            var secondGamePanel = document.getElementById("secondGamePanel");
             var allClickableSquares = [];
 
-function fillPlayerField() {
+function fillFirstPanel() {
             for(var i=0; i<100; i++) {
                 let square = document.createElement("div");
                 square.classList.add("square");
 
-                switch(myField.battleField[i]) {
+                switch(humanField.battleField[i]) {
                     case "@": square.classList.add("incognito");
                         break;
                     case "#": square.classList.add("ship");
@@ -66,11 +65,11 @@ function fillPlayerField() {
                     default:
                         break;
                 }
-                playerField.appendChild(square);
+                firstGamePanel.appendChild(square);
             }
 }
 
-fillPlayerField();
+fillFirstPanel();
 
             for(i=0; i<100; i++) {
                 let square = document.createElement("div");
@@ -79,13 +78,13 @@ fillPlayerField();
                 square.addEventListener("click",
                     function (event) {
                     let index = allClickableSquares.indexOf(event.target);
-                    playerAttack(index);
-                    changeClass(square, index, guessField);
-                    $('.field#playerField').empty();
-                    fillPlayerField();
+                    humanField.humanAttack(index);
+                    humanField.changeClass(square, index, humanGuessField);
+                    $('.gamePanel#firstGamePanel').empty();
+                    fillFirstPanel();
                 });
 
-                switch(guessField.battleField[i]) {
+                switch(humanGuessField.battleField[i]) {
                     case "@": square.classList.add("incognito");
                         break;
                     case "#": square.classList.add("ship");
@@ -97,7 +96,7 @@ fillPlayerField();
                     default:
                         break;
                 }
-                enemyField.appendChild(square);
+                secondGamePanel.appendChild(square);
             }
         };
 
