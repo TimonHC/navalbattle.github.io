@@ -41,14 +41,13 @@ h1.main-header {
     display: inherit;
 }
 
-.field-wrapper {
+.game-panel {
     margin: 4% 6.5%;
     display: inline-block;
     box-shadow: 0 0 10px rgba(179,130,26,0.5);
 }
 
-.gamePanel {
-
+.squares-wrapper {
     display: flex;
     padding: 0;
     flex-flow: row wrap;
@@ -56,11 +55,10 @@ h1.main-header {
     height: calc(70vmin - 10px);
 }
 
-.gamePanel#firstGamePanel {
-
+.squares-wrapper#first-squares-wrapper {
 }
 
-.gamePanel#secondGamePanel {
+.squares-wrapper#second-squares-wrapper {
 }
 
 .square{

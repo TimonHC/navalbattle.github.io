@@ -163,12 +163,21 @@ class AiField extends PlayerField {
     }
 
     isShipSunk(coordsOfLastSuccessAttack, field) {
-        let c = coordsOfLastSuccessAttack;
-        return ((field[c - 1] || field[c + 1] || field[c + 10] || field[c - 10]) !== "#");
+        let c = coordsOfLastSuccessAttack;      
     }
 
-    circleTheSunkenShipWithDots(coordsOfLastSuccessAttack) {
+    circleTheSunkenShipWithDots(coordsOfLastSuccessAttack, field, guessField) {
         let c = coordsOfLastSuccessAttack;
+        let direction; //1 vertical 0 horizontal
+        function isOneDeckShip(c) {
+            if (field.battleField[c + 10] === '*' && field.battleField[c - 10] === '*'
+                && field.battleField[c + 1] === '*' && field.battleField[c - 1] === '*')
+                return true;
+        }
+        if (field.battleField[c + 1] === 'X' || field.battleField[c - 1] === 'X') direction = 0;
+        if (field.battleField[c + 10] === 'X' || field.battleField[c - 10] === 'X') direction = 1;
+
+
     }
 
 

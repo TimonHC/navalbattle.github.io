@@ -30,13 +30,13 @@ font-style: normal;
 </div>
 <div id="wrapper-block">
 
-    <div class="field-wrapper">
-    <div class="gamePanel" id="firstGamePanel">
+    <div class="game-panel" id="first-game-panel">
+    <div class="squares-wrapper" id="first-squares-wrapper">
     </div>
     </div>
 
-    <div class="field-wrapper">
-     <div class="gamePanel" id="secondGamePanel">
+    <div class="game-panel" id="second-game-panel">
+     <div class="squares-wrapper" id="second-squares-wrapper">
     </div>
     </div>
 
@@ -44,8 +44,8 @@ font-style: normal;
 
 
         window.onload = function() {
-            var firstGamePanel = document.getElementById("firstGamePanel");
-            var secondGamePanel = document.getElementById("secondGamePanel");
+            var firstSquareWrapper = document.getElementById("first-squares-wrapper");
+            var secondSquareWrapper = document.getElementById("second-squares-wrapper");
             var allClickableSquares = [];
 
 function fillFirstPanel() {
@@ -65,7 +65,7 @@ function fillFirstPanel() {
                     default:
                         break;
                 }
-                firstGamePanel.appendChild(square);
+                firstSquareWrapper.appendChild(square);
             }
 }
 
@@ -80,7 +80,7 @@ fillFirstPanel();
                     let index = allClickableSquares.indexOf(event.target);
                     humanField.humanAttack(index);
                     humanField.changeClass(square, index, humanGuessField);
-                    $('.gamePanel#firstGamePanel').empty();
+                    $('.squares-wrapper#first-squares-wrapper').empty();
                     fillFirstPanel();
                 });
 
@@ -96,11 +96,22 @@ fillFirstPanel();
                     default:
                         break;
                 }
-                secondGamePanel.appendChild(square);
+                secondSquareWrapper.appendChild(square);
             }
         };
 
-    </script>
+    /*    $('#second-game-panel *').click(function () {
+            alert($(this).index());
+            let index = $(this).index();
+            humanField.humanAttack(index);
+            humanField.changeClass(square, index, humanGuessField);
+            $('.square-wrapper#first-square-wrapper').empty();
+            fillFirstPanel();
+        })
+*/
+
+
+</script>
 
 <!--
 
