@@ -129,7 +129,9 @@ class PlayerField extends  Field {
         for (let i = 0; i < 100; i++) {
             if(field.battleField[i] === '#') result = false;
         }
-        if(result) alert('GG');
+        if(result) {
+           alert('GG');
+        }
     }
 }
 
@@ -141,7 +143,7 @@ class AiField extends PlayerField {
 
     aiAttack() {
 
-        let coordinate = this.getRandomIntInclusive(1, 100);
+       let coordinate = this.getRandomIntInclusive(0, 99);
         switch (humanField.battleField[coordinate]) {
             case '@':
                 humanField.battleField[coordinate] = '*';
@@ -184,6 +186,7 @@ class AiField extends PlayerField {
 }
 
 class HumanField extends PlayerField {
+
     constructor() {
         super();
     }

@@ -3,50 +3,45 @@
 
 <head>
 
-    <link
-            href="NavalBattleStyle.css" type="text/css" rel="stylesheet"
-    >
-    <link rel="shortcut icon" href="Content/slogosb.png" type="image/x-icon">
+    <link href="NavalBattleStyle.css" type="text/css" rel="stylesheet">
+    <link href="Content/fonts/StarJedi-DGRW.ttf">
+    <link rel="shortcut icon" href="Content/images/slogosb.png" type="image/x-icon">
     <script src="NewNavalBattle.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-    <style>
-        @font-face {
-            font-family: "Star Jedi";
-            src: local("Star Jedi");
-            src: url("https://get.fontspace.co/download/font/A4lL/OGYzMWMyNDE3ZDYwNGRhNGI3ZDFmOTAxYzgyMjMzMWUudHRm/StarJediHollow-A4lL.ttf")format('truetype');
-font-style: normal;
-            font-weight: normal;
-        }
-    </style>
     <meta charset="UTF-8">
     <title>Space Battle</title>
 
 </head>
 
 <body>
+<audio id="music" src="https://souts.ru/download/XC9cL1NvdXRzLnJ1XC9zdHJlYW1cL215bVwvYUhSMGNITTZMeTl0YjI5emFXTXViWGt1YldGcGJDNXlkUzltYVd4bEwyWm1NMkptWkRNME5EUmhOakZtTnpJeU5tTXlNV0ppTkRNd016UXlOamxrTG0xd013PT0=/imfinenowAnotherWorld"
+  loop>
+</audio>
 <div class="header-container">
-<img src="Content/slogosb.png" alt="logo" id="small-logo">
+<img src="Content/images/slogosb.png" alt="logo" id="small-logo">
+
 <h1 class="main-header">Space battle</h1>
 </div>
+
 <div id="wrapper-block">
 
-    <div class="game-panel" id="first-game-panel">
     <div class="squares-wrapper" id="first-squares-wrapper">
     </div>
-    </div>
 
-    <div class="game-panel" id="second-game-panel">
      <div class="squares-wrapper" id="second-squares-wrapper">
     </div>
-    </div>
 
-    <script id="fill-game-fields">
+    <script id="init-game-onload">
 
 
         window.onload = function() {
             var firstSquareWrapper = document.getElementById("first-squares-wrapper");
             var secondSquareWrapper = document.getElementById("second-squares-wrapper");
-            var allClickableSquares = [];
+            var music = document.getElementById('music');
+            music.volume = 0.25;
+            $('body').on('click', function () {
+                music.play();
+            });
 
 function fillFirstPanel() {
             for(var i=0; i<100; i++) {
@@ -74,13 +69,13 @@ fillFirstPanel();
             for(i=0; i<100; i++) {
                 let square = document.createElement("div");
                 square.classList.add("square");
-                allClickableSquares.push(square);
+
                 square.addEventListener("click",
                     function (event) {
-                    let index = allClickableSquares.indexOf(event.target);
+                    let index = $(this).index();
                     humanField.humanAttack(index);
                     humanField.changeClass(square, index, humanGuessField);
-                    $('.squares-wrapper#first-squares-wrapper').empty();
+                    $('#first-squares-wrapper').empty();
                     fillFirstPanel();
                 });
 
@@ -100,12 +95,13 @@ fillFirstPanel();
             }
         };
 
-    /*    $('#second-game-panel *').click(function () {
+/*
+        $('#second-squares-wrapper *').click(function () {
             alert($(this).index());
             let index = $(this).index();
             humanField.humanAttack(index);
             humanField.changeClass(square, index, humanGuessField);
-            $('.square-wrapper#first-square-wrapper').empty();
+            $('#first-square-wrapper').empty();
             fillFirstPanel();
         })
 */
