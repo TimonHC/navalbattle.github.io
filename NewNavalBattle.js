@@ -35,10 +35,9 @@ class PlayerField extends  Field {
 
     isSurroundingCellsFree(cell) {
         let result = false;
-        cell--;
 
         if (
-            (this.battleField[cell-11] === undefined || this.battleField[cell-11] === '@')
+            (this.battleField[cell-11] === '@' || this.battleField[cell-11] === undefined)
             && (this.battleField[cell-10] === '@' || this.battleField[cell-10] === undefined)
             && (this.battleField[cell-9] === '@' || this.battleField[cell-9] === undefined)
             && (this.battleField[cell+1] === '@' || this.battleField[cell+1] === undefined)
@@ -47,23 +46,25 @@ class PlayerField extends  Field {
             && (this.battleField[cell+9] === '@' || this.battleField[cell+9] === undefined)
             && (this.battleField[cell-1] === '@' || this.battleField[cell-1] === undefined)
         ) { result = true; }
-
         return result;
     }
 
     isCanBeAttached(shipLength, startCoordinate, direction) {
-
+        //for an attempt to place ship in another direction
+        let switchedDirection = () => direction === 1 ? 0 : 1;
         let cellsToOut;
         let lastCoordinate;
         let canBeAttached = false;
 
-        if (shipLength === 1) return this.isSurroundingCellsFree(startCoordinate);
+        //check free cell for one-deck ships
+        if (shipLength === 1) return this.isSurroundingCellsFree(startCoordinate) && (this.battleField[startCoordinate] === '@');
 
+        //vertical ship placement direction
         if (direction === 1) {
 
-            cellsToOut = (startCoordinate === 100) ? 1
+            cellsToOut = (startCoordinate === 99) ? 1
                 : 10 - Math.floor(((startCoordinate) + 10) / 10) + 1;
-            lastCoordinate = startCoordinate + (shipLength * 10 - 1);
+            lastCoordinate = startCoordinate + ((shipLength - 1) * 10);
 
             if (
                 this.isSurroundingCellsFree(startCoordinate) &&
@@ -79,9 +80,10 @@ class PlayerField extends  Field {
             }
         }
 
+        //horizontal ship placement direction
         if (direction === 0) {
-            cellsToOut = (startCoordinate % 10) === 0 ? 1 : 10 - (startCoordinate % 10) + 1;
-            lastCoordinate = startCoordinate + shipLength - 1;
+            cellsToOut = (startCoordinate % 10) === 0 ? 10 : 10 - (startCoordinate % 10);
+            lastCoordinate = startCoordinate + shipLength;
             if (
                 this.isSurroundingCellsFree(startCoordinate) &&
                 this.isSurroundingCellsFree(lastCoordinate) &&
@@ -95,8 +97,15 @@ class PlayerField extends  Field {
                 }
             }
         }
+
+        //trying to place ship with the same coordinates but in another direction
+        if(!canBeAttached) try {
+            this.isCanBeAttached(shipLength, startCoordinate, switchedDirection);
+        } catch(rangeError) {
+            return canBeAttached;}
+
         return canBeAttached;
-    }
+}
 
     placeShip(ship) {
         let randomCoordinate;
@@ -104,14 +113,14 @@ class PlayerField extends  Field {
         let canBeAttached = false;
 
         do {
-            randomCoordinate = this.getRandomIntInclusive(1, 100);
+            randomCoordinate = this.getRandomIntInclusive(0, 99);
             direction = this.setShipDirection();
             canBeAttached = this.isCanBeAttached(ship, randomCoordinate, direction);
         } while (!canBeAttached);
 
         if (canBeAttached) {
             for (let i = 0; i < ship; i++) {
-                this.battleField[randomCoordinate-1] = '#';
+                this.battleField[randomCoordinate] = '#';
                 direction ? randomCoordinate += 10 : randomCoordinate++;
             }
         }
