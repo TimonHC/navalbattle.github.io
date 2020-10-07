@@ -43,7 +43,7 @@ h1.main-header {
 }
 
 .squares-wrapper {
-    margin: 4% 6.5%;
+    margin: calc(7vmin - 1px);
     box-shadow: 0 0 10px rgba(179,130,26,0.5);
     display: inline-flex;
     padding: 0;
@@ -56,6 +56,7 @@ h1.main-header {
 }
 
 .squares-wrapper#second-squares-wrapper {
+    float:right;
 }
 
 .square{
