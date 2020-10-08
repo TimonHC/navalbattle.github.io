@@ -31,6 +31,8 @@
      <div class="squares-wrapper" id="second-squares-wrapper">
     </div>
 
+
+
     <script id="init-game-onload">
 
 
@@ -38,7 +40,7 @@
             var firstSquareWrapper = document.getElementById("first-squares-wrapper");
             var secondSquareWrapper = document.getElementById("second-squares-wrapper");
             var music = document.getElementById('music');
-            music.volume = 0.25;
+            music.volume = 0;
             $('body').on('click', function () {
                 music.play();
             });
@@ -117,10 +119,12 @@ fillFirstPanel();
 -->
 
 </div>
-<!--
-<footer>
 
-</footer>-->
+<footer>
+    <a href="https://github.com/TimonHC/navalbattle.github.io">
+    <img src="Content/images/github-logo.png" id="github-logo" >
+    </a>
+</footer>
 
 </body>
 </html>
