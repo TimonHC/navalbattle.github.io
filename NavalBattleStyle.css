@@ -115,14 +115,14 @@ footer {
 }
 
 #github-logo {
-    height: 90%;
+    height: calc(1.35*var(--var-cell-size));
     opacity: 0.7;
     display: block;
     margin: 0 auto;
-
 }
+
 #github-logo:hover {
-    box-shadow: 0 -10px 90px 1px rgba(179, 130, 26, 0.9);
+    box-shadow: 0 0 100px 1px rgba(179, 130, 26, 0.9);
     border-radius: 100%;
     transition: all ease 1s;
 }
