@@ -1,4 +1,5 @@
-
+const VERTICAL_INCREMENT = 10;
+const HORIZONTAL_INCREMENT = 1;
 class Field {
 
     constructor() {
@@ -17,7 +18,6 @@ class Field {
             this.battleField.push('@');
         }
     }
-
 }
 
 class PlayerField extends  Field {
@@ -91,8 +91,8 @@ class PlayerField extends  Field {
             ) {
                 canBeAttached = true;
                 for (let i = 0; i < shipLength; i++) {
-                    if(!((this.battleField[startCoordinate - 10] === '@' || this.battleField[startCoordinate + 10] === undefined)
-                        && (this.battleField[startCoordinate - 10] === '@' || this.battleField[startCoordinate + 10] === undefined)))
+                    if(!((this.battleField[startCoordinate - VERTICAL_INCREMENT] === '@' || this.battleField[startCoordinate + VERTICAL_INCREMENT] === undefined)
+                        && (this.battleField[startCoordinate - VERTICAL_INCREMENT] === '@' || this.battleField[startCoordinate + VERTICAL_INCREMENT] === undefined)))
                         canBeAttached = false;
                 }
             }
@@ -146,12 +146,71 @@ class PlayerField extends  Field {
 
 class AiField extends PlayerField {
 
+
     constructor() {
         super();
     }
 
-    aiAttack() {
+    processAiSuccessAttack(lastSuccessAttackCoordinate) {
+        let verticalLine = [];
+        let horizontalLine = [];
 
+        //arg1 is coordinate, arg2 is desirable direction of the line (1 - vert, 0 horizontal);
+        function getLineNumber(coordinate, direction) {
+            let line;
+            if ( (coordinate < 0 || coordinate > 99) || (direction !== 0 || direction !== 1) ) {
+                return;
+            } else {
+                direction
+                    ? line = coordinate % VERTICAL_INCREMENT //vertical
+                    : line = Math.floor(coordinate / VERTICAL_INCREMENT); //horizontal
+            } return line;
+        }
+
+        //get whole vertical line wheres hitted in a row
+        function setVerticalLine(coordinate, arr) {
+            let verticalLineNumber = getLineNumber(coordinate, 1);
+            //vertical ship hitted case
+            arr = getLineNumber(coordinate, 1);
+                for (let i = 0; i < 10; i++) {
+                    arr.push((i * VERTICAL_INCREMENT) + verticalLineNumber);
+                }
+            }
+
+            //horizontal ship hitted case
+            function setHorizontalLine(coordinate, arr) {
+                let horizontalLineNumber = getLineNumber(coordinate, 0);
+                for (let i = 0; i < 10; i++) {
+                    arr.push((horizontalLineNumber*VERTICAL_INCREMENT) + i);
+                }
+            }
+
+            function isLastCellInTheLine(coordinate) {
+                return coordinate % 10 === 0 ||
+                    coordinate % 10 === 1 ||
+                    Math.floor(coordinate / 10) === 0 ||
+                    Math.floor(coordinate / 10) === 9;
+            }
+
+            //cut off cells beyond the maximum length of the ship
+            function cutGuessAttackLine (line, coordinate) {
+            let index = line.indexOf(coordinate);
+            index < 4 ? line = line.slice (0, index + 4) :
+            line = line.slice (index - 3, (index + 4));
+            return line;
+            }
+
+            cutGuessAttackLine(verticalLine, lastSuccessAttackCoordinate);
+            cutGuessAttackLine(horizontalLine, lastSuccessAttackCoordinate);
+
+            function proceedGuessAttackLines() {
+
+            }
+
+
+    }
+
+    aiAttack() {
        let coordinate = this.getRandomIntInclusive(0, 99);
         switch (humanField.battleField[coordinate]) {
             case '@':
@@ -159,6 +218,7 @@ class AiField extends PlayerField {
                 break;
             case '#':
                 humanField.battleField[coordinate] = 'X';
+
                 aiField.aiAttack();
                 break;
             case 'X':
@@ -173,23 +233,6 @@ class AiField extends PlayerField {
         this.isGameOver(humanField);
     }
 
-    isShipSunk(coordsOfLastSuccessAttack, field) {
-        let c = coordsOfLastSuccessAttack;      
-    }
-
-    circleTheSunkenShipWithDots(coordsOfLastSuccessAttack, field, guessField) {
-        let c = coordsOfLastSuccessAttack;
-        let direction; //1 vertical 0 horizontal
-        function isOneDeckShip(c) {
-            if (field.battleField[c + 10] === '*' && field.battleField[c - 10] === '*'
-                && field.battleField[c + 1] === '*' && field.battleField[c - 1] === '*')
-                return true;
-        }
-        if (field.battleField[c + 1] === 'X' || field.battleField[c - 1] === 'X') direction = 0;
-        if (field.battleField[c + 10] === 'X' || field.battleField[c - 10] === 'X') direction = 1;
-
-
-    }
 
 
 }
@@ -247,7 +290,3 @@ let aIguessField = new Field();
 console.log(humanField.battleField);
 console.log(aiField.battleField);
 console.log(humanGuessField.battleField);
-
-
-
-
