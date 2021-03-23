@@ -1,5 +1,3 @@
-const VERTICAL_INCREMENT = 10;
-const HORIZONTAL_INCREMENT = 1;
 const _RESOLUTION = 10;
 
 class Field {
@@ -17,7 +15,10 @@ class Field {
     }
 
     generateRandomCoordinateXY() {
-        return [this.getRandomIntInclusive(0, _RESOLUTION - 1), this.getRandomIntInclusive(0, _RESOLUTION - 1)]
+        let result = [];
+        result.push(this.getRandomIntInclusive(0, _RESOLUTION - 1));
+        result.push(this.getRandomIntInclusive(0, _RESOLUTION - 1));
+        return result;
     }
 
     convertNumberToCoordArr(number) {
@@ -33,7 +34,6 @@ class PlayerField extends Field {
 
     }
 
-    enemyFleet = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
     _FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 
     isSurroundingCellsFree(coordinate) {
@@ -53,7 +53,7 @@ class PlayerField extends Field {
 
     isCanBeAttachedVertical(shipLength, startCoordinate) {
         let row = startCoordinate[0];
-        let col = startCoordinate[0];
+        let col = startCoordinate[1];
         let result = true;
 
         //check free cell for one-deck ships
@@ -604,12 +604,94 @@ class AiField extends PlayerField {
 
 }
 
-let humanField = new HumanField();
-let aiField = new AiField();
-let humanGuessField = new Field();
-let aIguessField = new Field();
+const humanField = new HumanField();
+const aiField = new AiField();
+const humanGuessField = new Field();
+const aIguessField = new Field();
 
 
 console.log(humanField.battleField);
 console.log(aiField.battleField);
 console.log(humanGuessField.battleField);
+
+const initialize = () => {
+
+        const uiFirstGameField = document.getElementById("first-game-field");
+        const uiSecondGameField = document.getElementById("second-game-field");
+        const allClickableSquares = [];
+        const music = document.getElementById('music');
+        music.volume = 1;
+        document.body.addEventListener('click', function() {
+            music.play();
+        });
+
+        function fillFirstUiGamePanel() {
+
+            for(let row=0; row < _RESOLUTION; row++) {
+                for (let col=0; col < _RESOLUTION; col++) {
+
+                    let square = document.createElement("div");
+                    square.classList.add("square");
+
+                    switch(humanField.battleField[row][col]) {
+                        case "@": square.classList.add("incognito");
+                            break;
+                        case "#": square.classList.add("ship");
+                            break;
+                        case 'X': square.classList.add("hit");
+                            break;
+                        case "*": square.classList.add("empty");
+                            break;
+                        default:
+                            break;
+                    }
+                    uiFirstGameField.appendChild(square);
+                }
+            }
+        }
+
+        function fillSecondUiGamePanel() {
+
+        for (let row = 0; row < 100; row++) {
+            for (let col = 0; col < _RESOLUTION; col++) {
+
+                let square = document.createElement("div");
+                square.classList.add("square");
+                allClickableSquares.push(square);
+                square.addEventListener("click",
+                    function (event) {
+                        let index = allClickableSquares.indexOf(event.target);
+                        humanField.humanAttack(index);
+                        humanField.changeUiCellClass(square, index, humanGuessField);
+                        while (uiFirstGameField.firstChild) {
+                            uiFirstGameField.removeChild(uiFirstGameField.firstChild);
+                        }
+                        fillFirstUiGamePanel();
+                    });
+
+                switch (humanGuessField.battleField[row][col]) {
+                    case "@":
+                        square.classList.add("incognito");
+                        break;
+                    case "#":
+                        square.classList.add("ship");
+                        break;
+                    case "X":
+                        square.classList.add("hit");
+                        break;
+                    case "*":
+                        square.classList.add("empty");
+                        break;
+                    default:
+                        break;
+                }
+                uiSecondGameField.appendChild(square);
+            }
+
+        }
+    }
+
+    fillFirstUiGamePanel();
+    fillSecondUiGamePanel();
+
+}
