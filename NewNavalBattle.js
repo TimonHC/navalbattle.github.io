@@ -16,13 +16,16 @@ class Field {
 
     generateRandomCoordinateXY() {
         let result = [];
-        result.push(this.getRandomIntInclusive(0, _RESOLUTION - 1));
-        result.push(this.getRandomIntInclusive(0, _RESOLUTION - 1));
+        result.push(this.getRandomIntInclusive(0, 9));
+        result.push(this.getRandomIntInclusive(0, 9));
         return result;
     }
 
     convertNumberToCoordArr(number) {
-        return [Math.floor(number / _RESOLUTION)][number % _RESOLUTION]
+        let coordinates = [];
+        coordinates.push(Math.floor(number / _RESOLUTION));
+        coordinates.push(number % _RESOLUTION);
+        return coordinates;
     }
 }
 
@@ -41,12 +44,18 @@ class PlayerField extends Field {
         let col = coordinate[1];
         let result = false;
 
-        //left
-        if (col - 1 >= 0 && this.battleField[row][col - 1] === '@' 
-         && row - 1 >= 0 && this.battleField[row - 1][col] === '@'
-         && col + 1 < _RESOLUTION && this.battleField[row][col+1] === '@'
-         && row + 1 < _RESOLUTION && this.battleField[row + 1][col] === '@') {
-         result = true; }            
+
+        if (
+         col - 1 >= 0 && this.battleField[row][col - 1] === '@' //left
+         && (col - 1 >= 0 && row - 1 >= 0) && (this.battleField[row - 1][col - 1] === '@') //top-left
+         && row - 1 >= 0 && this.battleField[row - 1][col] === '@' //top
+         && (col + 1 < _RESOLUTION && row - 1 >= 0) && (this.battleField[row - 1][col + 1] === '@') //top-right
+         && col + 1 < _RESOLUTION && this.battleField[row][col+1] === '@' //right
+         && (col + 1 < _RESOLUTION && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col + 1] === '@') //bot-right
+         && row + 1 < _RESOLUTION && this.battleField[row + 1][col] === '@' //bottom
+         && (col - 1 >= 0 && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col - 1] === '@')) //bot-left
+         { result = true; }
+
 
         return result;
     }
@@ -54,14 +63,15 @@ class PlayerField extends Field {
     isCanBeAttachedVertical(shipLength, startCoordinate) {
         let row = startCoordinate[0];
         let col = startCoordinate[1];
-        let result = true;
+        let result = false;
 
+        if (row + shipLength > _RESOLUTION) return false;
         //check free cell for one-deck ships
         if (shipLength === 1) return this.isSurroundingCellsFree(startCoordinate) && (this.battleField[row][col] === '@');
 
         for (let i = 0; i < shipLength; i++) {
-            if (!(this.battleField[row + i][col] === '@' && this.isSurroundingCellsFree([row + i, col]))) {
-                result = false;
+            if (this.battleField[row + i][col] === '@' && this.isSurroundingCellsFree([row + i, col])) {
+                result = true;
             }
         }
 
@@ -70,40 +80,46 @@ class PlayerField extends Field {
 
     isCanBeAttachedHorizontal(shipLength, startCoordinate) {
         let row = startCoordinate[0];
-        let col = startCoordinate[0];
-        let result = true;
+        let col = startCoordinate[1];
+        let result = false;
 
+
+        if (col + shipLength > _RESOLUTION) return false;
         //check free cell for one-deck ships
         if (shipLength === 1) return this.isSurroundingCellsFree(startCoordinate) && (this.battleField[row][col] === '@');
 
         for (let i = 0; i < shipLength; i++) {
-            if (!(this.battleField[row][col + i] === '@' && this.isSurroundingCellsFree([row, col  + i]))) {
-                result = false;
+            if (this.battleField[row][col + i] === '@' && this.isSurroundingCellsFree([row, col  + i])) {
+                result = true;
             }
         }
 
         return result;
     }
 
-    attachShip(ship) {
+    attachShip(shipLength) {
         let randomCoordinate;
         let canBeAttachedVertical = false;
         let canBeAttachedHorizontal = false;
 
         do {
             randomCoordinate = this.generateRandomCoordinateXY();
-            canBeAttachedVertical = this.isCanBeAttachedVertical(ship, randomCoordinate);
-            canBeAttachedHorizontal = this.isCanBeAttachedHorizontal(ship, randomCoordinate);
-        } while (!(canBeAttachedVertical ^ canBeAttachedHorizontal));
+            canBeAttachedVertical = this.isCanBeAttachedVertical(shipLength, randomCoordinate);
+            canBeAttachedHorizontal = this.isCanBeAttachedHorizontal(shipLength, randomCoordinate);
+        } while (!(canBeAttachedVertical || canBeAttachedHorizontal));
 
         if (canBeAttachedVertical) {
-            for (let i = 0; i < ship; i++) {
+            for (let i = 0; i < shipLength; i++) {
                 this.battleField[randomCoordinate[0] + i][randomCoordinate[1]] = '#';
             }
-        } else {
-            for (let i = 0; i < ship; i++) {
+            return 0;
+        }
+
+        if (canBeAttachedHorizontal) {
+            for (let i = 0; i < shipLength; i++) {
                 this.battleField[randomCoordinate[0]][randomCoordinate[1] + i] = '#';
             }
+            return 0;
         }
 
     }
@@ -134,9 +150,9 @@ class HumanField extends PlayerField {
     }
 
     changeUiCellClass(item, index, field) {
-        let coord = [Math.floor(index / _RESOLUTION)][index % _RESOLUTION];
+        let coordinates = this.convertNumberToCoordArr(index);
         item.classList.remove('incognito','ship','empty', 'hit');
-        switch(field.battleField[coord[0]][coord[1]]) {
+        switch(field.battleField[coordinates[0]][coordinates[1]]) {
             case "@": item.classList.add("incognito");
                 break;
             case "#": item.classList.add("ship");
@@ -151,16 +167,16 @@ class HumanField extends PlayerField {
     }
 
     humanAttack(index) {
-        let coord = this.convertNumberToCoordArr(index);
-        switch (aiField.battleField[coord[0]][coord[1]]) {
+        let coordinates = this.convertNumberToCoordArr(index);
+        switch (aiField.battleField[coordinates[0]][coordinates[1]]) {
             case '@':
-                aiField.battleField[coord[0]][coord[1]] = '*';
-                humanGuessField.battleField[coord[0]][coord[1]] = '*';
+                aiField.battleField[coordinates[0]][coordinates[1]] = '*';
+                humanGuessField.battleField[coordinates[0]][coordinates[1]] = '*';
                 aiField.aiAttackRandomCoordinate();
                 break;
             case '#':
-                aiField.battleField[coord[0]][coord[1]] = 'X';
-                humanGuessField.battleField[coord[0]][coord[1]] = 'X';
+                aiField.battleField[coordinates[0]][coordinates[1]] = 'X';
+                humanGuessField.battleField[coordinates[0]][coordinates[1]] = 'X';
                 break;
             case 'X':
                 break;
@@ -612,7 +628,7 @@ const aIguessField = new Field();
 
 console.log(humanField.battleField);
 console.log(aiField.battleField);
-console.log(humanGuessField.battleField);
+
 
 const initialize = () => {
 
@@ -620,7 +636,6 @@ const initialize = () => {
         const uiSecondGameField = document.getElementById("second-game-field");
         const allClickableSquares = [];
         const music = document.getElementById('music');
-        music.volume = 1;
         document.body.addEventListener('click', function() {
             music.play();
         });
@@ -652,7 +667,7 @@ const initialize = () => {
 
         function fillSecondUiGamePanel() {
 
-        for (let row = 0; row < 100; row++) {
+        for (let row = 0; row < _RESOLUTION; row++) {
             for (let col = 0; col < _RESOLUTION; col++) {
 
                 let square = document.createElement("div");
@@ -660,6 +675,7 @@ const initialize = () => {
                 allClickableSquares.push(square);
                 square.addEventListener("click",
                     function (event) {
+                    console.log('hi');
                         let index = allClickableSquares.indexOf(event.target);
                         humanField.humanAttack(index);
                         humanField.changeUiCellClass(square, index, humanGuessField);
