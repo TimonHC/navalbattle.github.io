@@ -31,14 +31,72 @@ class PlayerField extends Field {
     constructor() {
         super();
         this._FLEET = _FLEET;
+
         this.placeShipsOnField();
     }
 
-    attachShip(shipLength) {
+    isSurroundingCellsFree(coordinate) {
+        let row = coordinate[0];
+        let col = coordinate[1];
+
+        return (col - 1 >= 0 && this.battleField[row][col - 1] === '@') //left
+            && ((col - 1 >= 0 && row - 1 >= 0) && (this.battleField[row - 1][col - 1] === '@')) //top-left
+            && (row - 1 >= 0 && this.battleField[row - 1][col] === '@') //top
+            && ((col + 1 < _RESOLUTION && row - 1 >= 0) && (this.battleField[row - 1][col + 1] === '@')) //top-right
+            && (col + 1 < _RESOLUTION && this.battleField[row][col + 1] === '@') //right
+            && ((col + 1 < _RESOLUTION && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col + 1] === '@')) //bot-right
+            && (row + 1 < _RESOLUTION && this.battleField[row + 1][col] === '@') //bottom
+            && ((col - 1 >= 0 && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col - 1] === '@'));
+    }
+
+    isCanBeAttachedVertical(shipLength, startCoordinate) {
+
+        let row = startCoordinate[0];
+        let col = startCoordinate[1];
+        let result = true;
+        let isWithinTheGameField = !(row + shipLength > _RESOLUTION);
+        if (!isWithinTheGameField) return false;
+        for (let i = 0; i < shipLength; i++) {
+            if (this.battleField[row + i][col] !== '@' || !this.isSurroundingCellsFree([row + i, col])) {
+                result = false;
+            }
+        }
+
+        return result && isWithinTheGameField;
+    }
+
+    isCanBeAttachedHorizontal(shipLength, startCoordinate) {
+
+        let row = startCoordinate[0];
+        let col = startCoordinate[1];
+        let result = true;
+        let isWithinTheGameField = !(col + shipLength > _RESOLUTION);
+        if (!isWithinTheGameField) return false;
+
+        for (let i = 0; i < shipLength; i++) {
+            if (this.battleField[row][col + i] !== '@' || !this.isSurroundingCellsFree([row, col  + i])) {
+                result = false;
+            }
+        }
+
+        return result && isWithinTheGameField;
+    }
+
+    attachShip(shipLength, ) {
         let randomCoordinate = [];
         randomCoordinate = this.generateRandomCoordinateXY(randomCoordinate);
         let canBeAttachedVertical = false;
         let canBeAttachedHorizontal = false;
+        let attachVertical = () => {
+            for (let i = 0; i < shipLength; i++) {
+                this.battleField[randomCoordinate[0] + i][randomCoordinate[1]] = '#';
+            }
+        }
+        let attachHorizontal = () => {
+            for (let i = 0; i < shipLength; i++) {
+                this.battleField[randomCoordinate[0]][randomCoordinate[1] + i] = '#';
+            }
+        }
 
         for (;!(canBeAttachedVertical || canBeAttachedHorizontal);) {
             randomCoordinate = this.generateRandomCoordinateXY(randomCoordinate);
@@ -48,79 +106,7 @@ class PlayerField extends Field {
 
         console.log("ship " + shipLength + "random " + randomCoordinate + "canbeattached hor and ver " + canBeAttachedHorizontal + canBeAttachedVertical)
 
-        if (canBeAttachedVertical) {
-            for (let i = 0; i < shipLength; i++) {
-                this.battleField[randomCoordinate[0] + i][randomCoordinate[1]] = '#';
-            }
-            return 0;
-        }
-
-        if (canBeAttachedHorizontal && !canBeAttachedVertical) {
-            for (let i = 0; i < shipLength; i++) {
-                this.battleField[randomCoordinate[0]][randomCoordinate[1] + i] = '#';
-            }
-            return 0;
-        }
-
-    }
-
-    isSurroundingCellsFree(coordinate) {
-        let row = coordinate[0];
-        let col = coordinate[1];
-        let result = false;
-
-
-        if (
-            (col - 1 >= 0 && this.battleField[row][col - 1] === '@') //left
-         && ((col - 1 >= 0 && row - 1 >= 0) && (this.battleField[row - 1][col - 1] === '@')) //top-left
-         && (row - 1 >= 0 && this.battleField[row - 1][col] === '@') //top
-         && ((col + 1 < _RESOLUTION && row - 1 >= 0) && (this.battleField[row - 1][col + 1] === '@')) //top-right
-         && (col + 1 < _RESOLUTION && this.battleField[row][col+1] === '@') //right
-         && ((col + 1 < _RESOLUTION && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col + 1] === '@')) //bot-right
-         && (row + 1 < _RESOLUTION && this.battleField[row + 1][col] === '@') //bottom
-         && ((col - 1 >= 0 && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col - 1] === '@')) ) //bot-left
-         { result = true; }
-
-
-        return result;
-    }
-
-    isCanBeAttachedVertical(shipLength, startCoordinate) {
-
-        let row = startCoordinate[0];
-        let col = startCoordinate[1];
-        let result = true;
-
-        if (row + shipLength > _RESOLUTION) return false;
-        //check free cell for one-deck ships
-        if (shipLength === 1) return this.isSurroundingCellsFree(startCoordinate) && (this.battleField[row][col] === '@');
-
-        for (let i = 0; i < shipLength; i++) {
-            if (this.battleField[row + i][col] !== '@' && this.isSurroundingCellsFree([row + i, col])) {
-                result = false;
-            }
-        }
-
-        return result;
-    }
-
-    isCanBeAttachedHorizontal(shipLength, startCoordinate) {
-        let row = startCoordinate[0];
-        let col = startCoordinate[1];
-        let result = true;
-
-
-        if (col + shipLength > _RESOLUTION) return false;
-        //check free cell for one-deck ships
-        if (shipLength === 1) return this.isSurroundingCellsFree(startCoordinate) && (this.battleField[row][col] === '@');
-
-        for (let i = 0; i < shipLength; i++) {
-            if (this.battleField[row][col + i] !== '@' && !this.isSurroundingCellsFree([row, col  + i])) {
-                result = true;
-            }
-        }
-
-        return result;
+        canBeAttachedVertical ? attachVertical() : attachHorizontal();
     }
 
     placeShipsOnField () {
