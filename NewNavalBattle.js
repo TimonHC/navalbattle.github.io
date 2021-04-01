@@ -54,8 +54,11 @@ class PlayerField extends Field {
         let row = startCoordinate[0];
         let col = startCoordinate[1];
         let result = true;
-        let isWithinTheGameField = !(row + shipLength > _RESOLUTION);
+        let isWithinTheGameField = (row + shipLength < _RESOLUTION);
+        let isOneDeckCanBePlaced = this.isSurroundingCellsFree(startCoordinate) && (this.battleField[row][col] === '@');
         if (!isWithinTheGameField) return false;
+        if (shipLength === 1) return isOneDeckCanBePlaced;
+
         for (let i = 0; i < shipLength; i++) {
             if (this.battleField[row + i][col] !== '@' || !this.isSurroundingCellsFree([row + i, col])) {
                 result = false;
@@ -70,8 +73,11 @@ class PlayerField extends Field {
         let row = startCoordinate[0];
         let col = startCoordinate[1];
         let result = true;
-        let isWithinTheGameField = !(col + shipLength > _RESOLUTION);
+        let isWithinTheGameField = (col + shipLength < _RESOLUTION);
+        let isOneDeckCanBePlaced = this.isSurroundingCellsFree([row, col]) && (this.battleField[row][col] === '@');
         if (!isWithinTheGameField) return false;
+        if (shipLength === 1) return isOneDeckCanBePlaced;
+
 
         for (let i = 0; i < shipLength; i++) {
             if (this.battleField[row][col + i] !== '@' || !this.isSurroundingCellsFree([row, col  + i])) {
