@@ -1,4 +1,5 @@
 const _RESOLUTION = 10;
+const _FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 
 class Field {
 
@@ -14,17 +15,13 @@ class Field {
         return Math.floor(Math.random() * (max - min + 1)) + min; //Максимум и минимум включаются
     }
 
-    generateRandomCoordinateXY() {
-        let result = [];
-        result.push(this.getRandomIntInclusive(0, 9));
-        result.push(this.getRandomIntInclusive(0, 9));
-        return result;
+    generateRandomCoordinateXY(result) {
+        return result = [this.getRandomIntInclusive(0, 9), this.getRandomIntInclusive(0, 9)];
     }
 
     convertNumberToCoordArr(number) {
         let coordinates = [];
-        coordinates.push(Math.floor(number / _RESOLUTION));
-        coordinates.push(number % _RESOLUTION);
+        coordinates.push(Math.floor(number / _RESOLUTION), number % _RESOLUTION);
         return coordinates;
     }
 }
@@ -33,11 +30,39 @@ class PlayerField extends Field {
 
     constructor() {
         super();
-        this.placeGameEntities();
-
+        this._FLEET = _FLEET;
+        this.placeShipsOnField();
     }
 
-    _FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+    attachShip(shipLength) {
+        let randomCoordinate = [];
+        randomCoordinate = this.generateRandomCoordinateXY(randomCoordinate);
+        let canBeAttachedVertical = false;
+        let canBeAttachedHorizontal = false;
+
+        for (;!(canBeAttachedVertical || canBeAttachedHorizontal);) {
+            randomCoordinate = this.generateRandomCoordinateXY(randomCoordinate);
+            canBeAttachedVertical = this.isCanBeAttachedVertical(shipLength, randomCoordinate);
+            canBeAttachedHorizontal = this.isCanBeAttachedHorizontal(shipLength, randomCoordinate);
+        }
+
+        console.log("ship " + shipLength + "random " + randomCoordinate + "canbeattached hor and ver " + canBeAttachedHorizontal + canBeAttachedVertical)
+
+        if (canBeAttachedVertical) {
+            for (let i = 0; i < shipLength; i++) {
+                this.battleField[randomCoordinate[0] + i][randomCoordinate[1]] = '#';
+            }
+            return 0;
+        }
+
+        if (canBeAttachedHorizontal && !canBeAttachedVertical) {
+            for (let i = 0; i < shipLength; i++) {
+                this.battleField[randomCoordinate[0]][randomCoordinate[1] + i] = '#';
+            }
+            return 0;
+        }
+
+    }
 
     isSurroundingCellsFree(coordinate) {
         let row = coordinate[0];
@@ -46,14 +71,14 @@ class PlayerField extends Field {
 
 
         if (
-         col - 1 >= 0 && this.battleField[row][col - 1] === '@' //left
-         && (col - 1 >= 0 && row - 1 >= 0) && (this.battleField[row - 1][col - 1] === '@') //top-left
-         && row - 1 >= 0 && this.battleField[row - 1][col] === '@' //top
-         && (col + 1 < _RESOLUTION && row - 1 >= 0) && (this.battleField[row - 1][col + 1] === '@') //top-right
-         && col + 1 < _RESOLUTION && this.battleField[row][col+1] === '@' //right
-         && (col + 1 < _RESOLUTION && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col + 1] === '@') //bot-right
-         && row + 1 < _RESOLUTION && this.battleField[row + 1][col] === '@' //bottom
-         && (col - 1 >= 0 && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col - 1] === '@')) //bot-left
+            (col - 1 >= 0 && this.battleField[row][col - 1] === '@') //left
+         && ((col - 1 >= 0 && row - 1 >= 0) && (this.battleField[row - 1][col - 1] === '@')) //top-left
+         && (row - 1 >= 0 && this.battleField[row - 1][col] === '@') //top
+         && ((col + 1 < _RESOLUTION && row - 1 >= 0) && (this.battleField[row - 1][col + 1] === '@')) //top-right
+         && (col + 1 < _RESOLUTION && this.battleField[row][col+1] === '@') //right
+         && ((col + 1 < _RESOLUTION && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col + 1] === '@')) //bot-right
+         && (row + 1 < _RESOLUTION && this.battleField[row + 1][col] === '@') //bottom
+         && ((col - 1 >= 0 && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col - 1] === '@')) ) //bot-left
          { result = true; }
 
 
@@ -61,17 +86,18 @@ class PlayerField extends Field {
     }
 
     isCanBeAttachedVertical(shipLength, startCoordinate) {
+
         let row = startCoordinate[0];
         let col = startCoordinate[1];
-        let result = false;
+        let result = true;
 
         if (row + shipLength > _RESOLUTION) return false;
         //check free cell for one-deck ships
         if (shipLength === 1) return this.isSurroundingCellsFree(startCoordinate) && (this.battleField[row][col] === '@');
 
         for (let i = 0; i < shipLength; i++) {
-            if (this.battleField[row + i][col] === '@' && this.isSurroundingCellsFree([row + i, col])) {
-                result = true;
+            if (this.battleField[row + i][col] !== '@' && this.isSurroundingCellsFree([row + i, col])) {
+                result = false;
             }
         }
 
@@ -81,7 +107,7 @@ class PlayerField extends Field {
     isCanBeAttachedHorizontal(shipLength, startCoordinate) {
         let row = startCoordinate[0];
         let col = startCoordinate[1];
-        let result = false;
+        let result = true;
 
 
         if (col + shipLength > _RESOLUTION) return false;
@@ -89,7 +115,7 @@ class PlayerField extends Field {
         if (shipLength === 1) return this.isSurroundingCellsFree(startCoordinate) && (this.battleField[row][col] === '@');
 
         for (let i = 0; i < shipLength; i++) {
-            if (this.battleField[row][col + i] === '@' && this.isSurroundingCellsFree([row, col  + i])) {
+            if (this.battleField[row][col + i] !== '@' && !this.isSurroundingCellsFree([row, col  + i])) {
                 result = true;
             }
         }
@@ -97,34 +123,7 @@ class PlayerField extends Field {
         return result;
     }
 
-    attachShip(shipLength) {
-        let randomCoordinate;
-        let canBeAttachedVertical = false;
-        let canBeAttachedHorizontal = false;
-
-        do {
-            randomCoordinate = this.generateRandomCoordinateXY();
-            canBeAttachedVertical = this.isCanBeAttachedVertical(shipLength, randomCoordinate);
-            canBeAttachedHorizontal = this.isCanBeAttachedHorizontal(shipLength, randomCoordinate);
-        } while (!(canBeAttachedVertical || canBeAttachedHorizontal));
-
-        if (canBeAttachedVertical) {
-            for (let i = 0; i < shipLength; i++) {
-                this.battleField[randomCoordinate[0] + i][randomCoordinate[1]] = '#';
-            }
-            return 0;
-        }
-
-        if (canBeAttachedHorizontal) {
-            for (let i = 0; i < shipLength; i++) {
-                this.battleField[randomCoordinate[0]][randomCoordinate[1] + i] = '#';
-            }
-            return 0;
-        }
-
-    }
-
-    placeGameEntities () {
+    placeShipsOnField () {
         for (let i = 0; i < this._FLEET.length; i++) {
             this.attachShip(this._FLEET[i]);
         }
@@ -271,7 +270,7 @@ class AiField extends PlayerField {
     //         return coords;
     //     }
     //
-    //     this.nextAttackCoords = getPossibleAttackCoords();
+    //     this.nextAttackCoords = getPossibleAttackCoords(nextAttackCoords);
     // }
     //
     // attackVars = {
