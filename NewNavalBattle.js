@@ -1,6 +1,7 @@
 const _RESOLUTION = 10;
 const _FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 
+
 class Field {
 
     constructor() {
@@ -16,7 +17,8 @@ class Field {
     }
 
     generateRandomCoordinateXY(result) {
-        return result = [this.getRandomIntInclusive(0, 9), this.getRandomIntInclusive(0, 9)];
+        result = [this.getRandomIntInclusive(0, 9), this.getRandomIntInclusive(0, 9)]
+        return result;
     }
 
     convertNumberToCoordArr(number) {
@@ -31,7 +33,6 @@ class PlayerField extends Field {
     constructor() {
         super();
         this._FLEET = _FLEET;
-
         this.placeShipsOnField();
     }
 
@@ -39,15 +40,50 @@ class PlayerField extends Field {
         let row = coordinate[0];
         let col = coordinate[1];
 
-        return (col - 1 >= 0 && this.battleField[row][col - 1] === '@') //left
-            && ((col - 1 >= 0 && row - 1 >= 0) && (this.battleField[row - 1][col - 1] === '@')) //top-left
-            && (row - 1 >= 0 && this.battleField[row - 1][col] === '@') //top
-            && ((col + 1 < _RESOLUTION && row - 1 >= 0) && (this.battleField[row - 1][col + 1] === '@')) //top-right
-            && (col + 1 < _RESOLUTION && this.battleField[row][col + 1] === '@') //right
-            && ((col + 1 < _RESOLUTION && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col + 1] === '@')) //bot-right
-            && (row + 1 < _RESOLUTION && this.battleField[row + 1][col] === '@') //bottom
-            && ((col - 1 >= 0 && row + 1 < _RESOLUTION) && (this.battleField[row + 1][col - 1] === '@'));
+        if (row === 0) {
+            return this.battleField[row][col - 1] === '@'
+                &&  this.battleField[row][col + 1] === '@'
+                &&  this.battleField[row + 1][col + 1] === '@'
+                &&  this.battleField[row + 1][col] === '@'
+                &&  this.battleField[row + 1][col - 1] === '@'
+        }
+
+        if (row === 9) {
+           return this.battleField[row][col - 1] === '@'
+            &&  this.battleField[row - 1][col - 1] === '@'
+            &&  this.battleField[row - 1][col] === '@'
+            &&  this.battleField[row - 1][col + 1] === '@'
+            &&  this.battleField[row][col + 1] === '@'
+        }
+
+        if (col === 0) {
+            return this.battleField[row - 1][col] === '@'
+                &&  this.battleField[row - 1][col + 1] === '@'
+                &&  this.battleField[row][col + 1] === '@'
+                &&  this.battleField[row + 1][col + 1] === '@'
+                &&  this.battleField[row + 1][col] === '@'
+        }
+
+        if (col === 9) {
+            return this.battleField[row][col - 1] === '@'
+            &&  this.battleField[row - 1][col - 1] === '@'
+            &&  this.battleField[row - 1][col] === '@'
+            &&  this.battleField[row + 1][col] === '@'
+            &&  this.battleField[row + 1][col - 1] === '@'
+        }
+
+         return this.battleField[row][col - 1] === '@'
+         &&  this.battleField[row - 1][col - 1] === '@'
+         &&  this.battleField[row - 1][col] === '@'
+         &&  this.battleField[row - 1][col + 1] === '@'
+         &&  this.battleField[row][col + 1] === '@'
+         &&  this.battleField[row + 1][col + 1] === '@'
+         &&  this.battleField[row + 1][col] === '@'
+         &&  this.battleField[row + 1][col - 1] === '@'
+
     }
+
+
 
     isCanBeAttachedVertical(shipLength, startCoordinate) {
 
@@ -93,11 +129,13 @@ class PlayerField extends Field {
         randomCoordinate = this.generateRandomCoordinateXY(randomCoordinate);
         let canBeAttachedVertical = false;
         let canBeAttachedHorizontal = false;
+
         let attachVertical = () => {
             for (let i = 0; i < shipLength; i++) {
                 this.battleField[randomCoordinate[0] + i][randomCoordinate[1]] = '#';
             }
         }
+
         let attachHorizontal = () => {
             for (let i = 0; i < shipLength; i++) {
                 this.battleField[randomCoordinate[0]][randomCoordinate[1] + i] = '#';
@@ -112,7 +150,9 @@ class PlayerField extends Field {
 
         console.log("ship " + shipLength + "random " + randomCoordinate + "canbeattached hor and ver " + canBeAttachedHorizontal + canBeAttachedVertical)
 
-        canBeAttachedVertical ? attachVertical() : attachHorizontal();
+        canBeAttachedVertical && canBeAttachedHorizontal ? this.getRandomIntInclusive(0,1) ===1 ? attachVertical() : attachHorizontal() : canBeAttachedVertical ? attachVertical() : attachHorizontal();
+
+
     }
 
     placeShipsOnField () {
