@@ -7,7 +7,6 @@
     --color-fire: #b31a4b;
 }
 
-
 * {
     margin: 0;
     padding: 0;
@@ -19,11 +18,18 @@ body {
     background-repeat: inherit;
     margin: 0;
     padding: 0;
-    width:100%;
-    display: inline-block;
+    max-width:100%;
+    display: block;
 }
 
-h1.main-header {
+header {
+    background: linear-gradient(0deg, transparent, var(--color-space));
+    display: block;
+    height: calc(1.5*var(--var-cell-size));
+    text-align: center;
+}
+
+header h1 {
     vertical-align: middle;
     width: 50%;
     display: inline-block;
@@ -35,46 +41,34 @@ h1.main-header {
     color: transparent;
 }
 
-.header-container {
-    background: linear-gradient(0deg, transparent, var(--color-space));
-
-    height: calc(1.5*var(--var-cell-size));
-    text-align: center;
-}
-
-#small-logo {
+header img {
     vertical-align: middle;
     display: inline-block;
 }
 
-#wrapper-block {
+#game-content-wrapper-block {
     margin-top: calc(var(--var-cell-size)/2);
+    margin-bottom: calc(var(--var-cell-size)/2);
     position: center;
     width: 100%;
-    display: inline-block;
+    display: block;
 }
 
-.squares-wrapper {
+.game-field {
     margin: var(--var-cell-size);
     margin-top: calc(0.5*var(--var-cell-size));
     box-shadow: 0 0 10px rgba(179,130,26,0.5);
     display: inline-flex;
-    padding: 0;
     flex-flow: row wrap;
     width: var(--var-field-size);
     height: var(--var-field-size);
 }
 
-.squares-wrapper#first-squares-wrapper {
-}
-
-.squares-wrapper#second-squares-wrapper {
+.game-field #second-game-field {
     float:right;
 }
 
 .square {
-    margin: 0;
-    padding: 0;
     width: var(--var-cell-size);
     height: var(--var-cell-size);
     border: 1px solid rgba(179,130,26,0.2);
