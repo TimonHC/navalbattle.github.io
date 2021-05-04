@@ -83,8 +83,6 @@ class PlayerField extends Field {
 
     }
 
-
-
     isCanBeAttachedVertical(shipLength, startCoordinate) {
 
         let row = startCoordinate[0];
@@ -124,7 +122,7 @@ class PlayerField extends Field {
         return result && isWithinTheGameField;
     }
 
-    attachShip(shipLength, ) {
+    attachShip(shipLength) {
         let randomCoordinate = [];
         randomCoordinate = this.generateRandomCoordinateXY(randomCoordinate);
         let canBeAttachedVertical = false;
@@ -224,9 +222,13 @@ class AiField extends PlayerField {
 
     constructor() {
         super();
+        this.aiAttackVariables = {
+            lastHit: [],
+            probableAttackCoords: new Array(4),
+        }
     }
 
-    aiAttackRandomCoordinate() {
+     aiAttackRandomCoordinate() {
         let coordinate = this.generateRandomCoordinateXY()
         switch (humanField.battleField[coordinate[0]][coordinate[1]]) {
             case '@':
@@ -247,7 +249,10 @@ class AiField extends PlayerField {
                 break;
         }
         this.isGameOver(humanField);
+
     }
+
+    ai
 
     // processAiAttack(lastSuccessAttackCoordinate) {
     //
@@ -657,19 +662,20 @@ const humanGuessField = new Field();
 const aIguessField = new Field();
 
 
-console.log(humanField.battleField);
-console.log(aiField.battleField);
-
+console.log(humanField);
+console.log(aiField);
+console.log(humanGuessField);
+console.log(aIguessField);
 
 const initialize = () => {
 
         const uiFirstGameField = document.getElementById("first-game-field");
         const uiSecondGameField = document.getElementById("second-game-field");
         const allClickableSquares = [];
-        const music = document.getElementById('music');
-        document.body.addEventListener('click', function() {
-            music.play();
-        });
+      //  const music = document.getElementById('music');
+      //   document.body.addEventListener('click', function() {
+      //       music.play();
+      //   });
 
         function fillFirstUiGamePanel() {
 
@@ -691,7 +697,7 @@ const initialize = () => {
                         default:
                             break;
                     }
-                    uiFirstGameField.appendChild(square);
+                 //   uiFirstGameField.appendChild(square);
                 }
             }
         }
@@ -713,7 +719,7 @@ const initialize = () => {
                         while (uiFirstGameField.firstChild) {
                             uiFirstGameField.removeChild(uiFirstGameField.firstChild);
                         }
-                        fillFirstUiGamePanel();
+                        //fillFirstUiGamePanel();
                     });
 
                 switch (humanGuessField.battleField[row][col]) {
@@ -732,13 +738,17 @@ const initialize = () => {
                     default:
                         break;
                 }
-                uiSecondGameField.appendChild(square);
+                //uiSecondGameField.appendChild(square);
             }
 
         }
     }
 
-    fillFirstUiGamePanel();
-    fillSecondUiGamePanel();
+    //fillFirstUiGamePanel();
+   // fillSecondUiGamePanel();
+
 
 }
+
+
+
