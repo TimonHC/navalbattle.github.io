@@ -158,51 +158,53 @@
             }
         }
 
-        markSunkDeck(coordinate, sourceField, guessField) {
-            if (coordinate[1] - 1 > -1
-                && sourceField.battleField[coordinate[0]][coordinate[1] - 1] === '@') {
-                guessField.battleField[coordinate[0]][coordinate[1] - 1] = '*';
-                sourceField.battleField[coordinate[0]][coordinate[1] - 1] = '*';
-            }
-            if (coordinate[0] - 1 > -1 && coordinate[1] - 1 > -1
-                && sourceField.battleField[coordinate[0] - 1][coordinate[1] - 1] === '@') {
-                guessField.battleField[coordinate[0] - 1][coordinate[1] - 1] = '*';
-                sourceField.battleField[coordinate[0] - 1][coordinate[1] - 1] = '*';
-            }
-            if (coordinate[0] - 1 > -1
-                && sourceField.battleField[coordinate[0] - 1][coordinate[1]] === '@') {
-                sourceField.battleField[coordinate[0] - 1][coordinate[1]] = '*';
-                guessField.battleField[coordinate[0] - 1][coordinate[1]] = '*';
-            }
-            if (coordinate[0] - 1 > -1 && coordinate[1] + 1 < 10
-                && sourceField.battleField[coordinate[0] - 1][coordinate[1] + 1] === '@') {
-                sourceField.battleField[coordinate[0] - 1][coordinate[1] + 1] = '*';
-                guessField.battleField[coordinate[0] - 1][coordinate[1] + 1] = '*';
-            }
-            if (coordinate[1] + 1 < 10
-                && sourceField.battleField[coordinate[0]][coordinate[1] + 1] === '@') {
-                guessField.battleField[coordinate[0]][coordinate[1] + 1] = '*';
-                sourceField.battleField[coordinate[0]][coordinate[1] + 1] = '*';
-            }
-            if (coordinate[0] + 1 < 10 && coordinate[1] + 1 < 10
-                && sourceField.battleField[coordinate[0] + 1][coordinate[1] + 1] === '@') {
-                guessField.battleField[coordinate[0] + 1][coordinate[1] + 1] = '*';
-                sourceField.battleField[coordinate[0] + 1][coordinate[1] + 1] = '*';
-            }
-            if (coordinate[0] + 1 < 10
-                && sourceField.battleField[coordinate[0] + 1][coordinate[1]] === '@') {
-                sourceField.battleField[coordinate[0] + 1][coordinate[1]] = '*';
-                guessField.battleField[coordinate[0] + 1][coordinate[1]] = '*';
-            }
-            if (coordinate[0] + 1 < 10 && coordinate[1] - 1 > -1
-                && sourceField.battleField[coordinate[0] + 1][coordinate[1] - 1] === '@') {
-                guessField.battleField[coordinate[0] + 1][coordinate[1] - 1] = '*';
-                sourceField.battleField[coordinate[0] + 1][coordinate[1] - 1] = '*';
-            }
-
-        }
+        
 
         markSunkShip(coordinate, sourceField, guessField) {
+
+            function markSunkDeck(coordinate, sourceField, guessField) {
+                if (coordinate[1] - 1 > -1
+                    && sourceField.battleField[coordinate[0]][coordinate[1] - 1] === '@') {
+                    guessField.battleField[coordinate[0]][coordinate[1] - 1] = '*';
+                    sourceField.battleField[coordinate[0]][coordinate[1] - 1] = '*';
+                }
+                if (coordinate[0] - 1 > -1 && coordinate[1] - 1 > -1
+                    && sourceField.battleField[coordinate[0] - 1][coordinate[1] - 1] === '@') {
+                    guessField.battleField[coordinate[0] - 1][coordinate[1] - 1] = '*';
+                    sourceField.battleField[coordinate[0] - 1][coordinate[1] - 1] = '*';
+                }
+                if (coordinate[0] - 1 > -1
+                    && sourceField.battleField[coordinate[0] - 1][coordinate[1]] === '@') {
+                    sourceField.battleField[coordinate[0] - 1][coordinate[1]] = '*';
+                    guessField.battleField[coordinate[0] - 1][coordinate[1]] = '*';
+                }
+                if (coordinate[0] - 1 > -1 && coordinate[1] + 1 < 10
+                    && sourceField.battleField[coordinate[0] - 1][coordinate[1] + 1] === '@') {
+                    sourceField.battleField[coordinate[0] - 1][coordinate[1] + 1] = '*';
+                    guessField.battleField[coordinate[0] - 1][coordinate[1] + 1] = '*';
+                }
+                if (coordinate[1] + 1 < 10
+                    && sourceField.battleField[coordinate[0]][coordinate[1] + 1] === '@') {
+                    guessField.battleField[coordinate[0]][coordinate[1] + 1] = '*';
+                    sourceField.battleField[coordinate[0]][coordinate[1] + 1] = '*';
+                }
+                if (coordinate[0] + 1 < 10 && coordinate[1] + 1 < 10
+                    && sourceField.battleField[coordinate[0] + 1][coordinate[1] + 1] === '@') {
+                    guessField.battleField[coordinate[0] + 1][coordinate[1] + 1] = '*';
+                    sourceField.battleField[coordinate[0] + 1][coordinate[1] + 1] = '*';
+                }
+                if (coordinate[0] + 1 < 10
+                    && sourceField.battleField[coordinate[0] + 1][coordinate[1]] === '@') {
+                    sourceField.battleField[coordinate[0] + 1][coordinate[1]] = '*';
+                    guessField.battleField[coordinate[0] + 1][coordinate[1]] = '*';
+                }
+                if (coordinate[0] + 1 < 10 && coordinate[1] - 1 > -1
+                    && sourceField.battleField[coordinate[0] + 1][coordinate[1] - 1] === '@') {
+                    guessField.battleField[coordinate[0] + 1][coordinate[1] - 1] = '*';
+                    sourceField.battleField[coordinate[0] + 1][coordinate[1] - 1] = '*';
+                }
+
+            }
 
             let isOneDeckShip = () => {
                 let result = true;
@@ -225,19 +227,24 @@
 
                     let topPoint, lowPoint;
 
+                    function setTopPoint() {
+                            for (let i = 0; i < 4
+                            && coordinate[0] + i < 10
+                            && guessField.battleField[coordinate[0] + i][coordinate[1]] === 'X'; i++) {
+                                topPoint = [coordinate[0] + i, coordinate[1]];
+                            }
+                        }
 
-                    for (let i = 0; i < 4
-                        && coordinate[0] + i < 10
-                        && guessField.battleField[coordinate[0] + i][coordinate[1]] === 'X'; i++) {
-                        topPoint = [coordinate[0] + i, coordinate[1]];
-                    }
-
-
-                    for (let i = 0; i < 4
+                    function setLowPoint () {
+                        for (let i = 0; i < 4
                         && coordinate[0] - i > -1
                         && guessField.battleField[coordinate[0] - i][coordinate[1]] === 'X'; i++) {
-                        lowPoint = [coordinate[0] - i, coordinate[1]];
+                            lowPoint = [coordinate[0] - i, coordinate[1]];
                         }
+                    }
+
+                    setTopPoint();
+                    setLowPoint();
 
                     let isCompletelySunkBottomSide = () => {
                         if ([lowPoint[0] - 1] > -1) {
@@ -250,7 +257,6 @@
                             return sourceField.battleField[topPoint[0] + 1][topPoint[1]] !== '#';
                         } else return sourceField.battleField[topPoint[0]][topPoint[1]] === 'X';
                     }
-
 
                     return isCompletelySunkTopSide() && isCompletelySunkBottomSide();
                 }
@@ -267,17 +273,24 @@
 
                         let topPoint, lowPoint;
 
-                        for (let i = 0; i < 4
-                        && coordinate[1] + i < 10
-                        && guessField.battleField[coordinate[0]][coordinate[1] + i] === 'X'; i++) {
-                            topPoint = [coordinate[0], coordinate[1] + i];
+                        function setTopPoint() {
+                            for (let i = 0; i < 4
+                            && coordinate[1] + i < 10
+                            && guessField.battleField[coordinate[0]][coordinate[1] + i] === 'X'; i++) {
+                                topPoint = [coordinate[0], coordinate[1] + i];
+                            }
                         }
 
-                        for (let i = 0; i < 4
-                        && coordinate[1] - i > -1
-                        && guessField.battleField[coordinate[0]][coordinate[1] - i] === 'X'; i++) {
-                            lowPoint = [coordinate[0], coordinate[1] - i];
+                        function setLowPoint() {
+                            for (let i = 0; i < 4
+                            && coordinate[1] - i > -1
+                            && guessField.battleField[coordinate[0]][coordinate[1] - i] === 'X'; i++) {
+                                lowPoint = [coordinate[0], coordinate[1] - i];
+                            }
                         }
+
+                        setLowPoint();
+                        setTopPoint();
 
                         return sourceField.battleField[topPoint[0]][topPoint[1] + 1] !== '#' && sourceField.battleField[lowPoint[0]][lowPoint[1] - 1] !== '#';
                     }
@@ -288,12 +301,12 @@
 
                 for (let i = 0; i < 4 && coordinate[0] + i < 10
                 && guessField.battleField[coordinate[0] + i][coordinate[1]] === 'X'; i++) {
-                    this.markSunkDeck([coordinate[0] + i, coordinate[1]], sourceField, guessField)
+                    markSunkDeck([coordinate[0] + i, coordinate[1]], sourceField, guessField)
                 }
 
                 for (let i = 0; i < 4 && coordinate[0] - i > -1
                     && guessField.battleField[coordinate[0] - i][coordinate[1]] === 'X'; i++) {
-                    this.markSunkDeck([coordinate[0] - i, coordinate[1]], sourceField, guessField)
+                    markSunkDeck([coordinate[0] - i, coordinate[1]], sourceField, guessField)
                 }
 
             }
@@ -302,18 +315,18 @@
 
                 for (let i = 0; i < 4 && coordinate[1] + i < 10
                 && guessField.battleField[coordinate[0]][coordinate[1]+ i] === 'X'; i++) {
-                    this.markSunkDeck([coordinate[0], coordinate[1] + i], sourceField, guessField)
+                    markSunkDeck([coordinate[0], coordinate[1] + i], sourceField, guessField)
                 }
 
                 for (let i = 0; i < 4 && coordinate[1] - i > -1
                 && guessField.battleField[coordinate[0]][coordinate[1] - i] === 'X'; i++) {
-                    this.markSunkDeck([coordinate[0], coordinate[1]  - i], sourceField, guessField)
+                    markSunkDeck([coordinate[0], coordinate[1]  - i], sourceField, guessField)
                 }
 
             }
 
             if (isOneDeckShip()) {
-                this.markSunkDeck(coordinate, sourceField, guessField);
+                markSunkDeck(coordinate, sourceField, guessField);
             }
         }
 
