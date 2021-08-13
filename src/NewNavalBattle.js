@@ -371,7 +371,7 @@ class HumanField extends PlayerField {
                 break;
         }
 
-        SOUND.playSound(index);
+
         this.isGameOver(aiField);
     }
 
