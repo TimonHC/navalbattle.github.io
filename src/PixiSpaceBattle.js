@@ -1,3 +1,6 @@
+import {humanField, humanGuessField, aiField} from "./NewNavalBattle.js";
+// import * as PIXI from './Content/libs/pixi.js';
+
 let renderer, textureCell, textureCellShip, slogo,
     textureCellHit, textureCellEmpty, stage, firstField, secondField, header, logo,
     message;
@@ -5,52 +8,65 @@ let innerWidth = 1390;
 let innerHeight = 640;
 const cellSize = 6 * (window.innerHeight / 100);
 const firstFieldXY = [cellSize, cellSize];
-const secondFieldXY = [(innerWidth / 2) + cellSize, 2 * cellSize];
+const secondFieldXY = [((innerWidth / 2) + cellSize), 2 * cellSize];
 const headerXY = [cellSize, cellSize];
 
 
 function setup() {
+
     //initializing renderer
     renderer = PIXI.autoDetectRenderer(
         {backgroundAlpha: 0});
     renderer.resize(1390, 900);//1390х640
 
     //initializing textures
-    textureCell = PIXI.Texture.from('Content\\sprites\\cell-incognito.png');
-    textureCellShip = PIXI.Texture.from('Content\\sprites\\cell-ship.png');
-    textureCellHit = PIXI.Texture.from('Content\\sprites\\cell-hit.png');
-    textureCellEmpty = PIXI.Texture.from('Content\\sprites\\cell-empty.png');
+    textureCell = PIXI.Texture.from('./Content\\images\\sprites\\cell-incognito.png');
+    textureCellShip = PIXI.Texture.from('Content\\images\\sprites\\cell-ship.png');
+    textureCellHit = PIXI.Texture.from('Content\\images\\sprites\\cell-hit.png');
+    textureCellEmpty = PIXI.Texture.from('Content\\images\\sprites\\cell-empty.png');
     logo = PIXI.Texture.from('Content\\images\\slogosb.png');
-    slogo = new PIXI.Sprite(logo);
+
+
 
     //initializing containers
-    stage = new PIXI.Container();
-    firstField = new PIXI.Container();
-         firstField.x = cellSize;
-         firstField.y = cellSize;
-    secondField = new PIXI.Container();
-        // secondField.x = secondFieldXY[0]
-        // secondField.y = secondFieldXY[1]
+    //header section
     header = new PIXI.Container();
-        header.x = headerXY[0];
-        header.y = headerXY[1];
+    header.x = headerXY[0];
+    header.y = headerXY[1];
+        //header text
         message = new PIXI.Text(
-            "Hello Pixi!"
+            "SPACE BATTLE", {
+                fontFamily: 'Star Jedi',
+                fontSize: 50,
+                fill: 'orange',
+                align: 'right',
+            }
         );
-
-    //injecting containers to root container
-    stage.addChild(firstField);
-    stage.addChild(secondField);
+        message.position.set(innerWidth/2, 0);
+    slogo = new PIXI.Sprite(logo);
+        slogo.scale.set(1.2,1.2);
+        slogo.position.set(cellSize, 0);
     header.addChild(message);
     header.addChild(slogo);
+
+    //body section
+    firstField = new PIXI.Container();
+         firstField.position.set(cellSize, 2*cellSize);
+    secondField = new PIXI.Container();
+        secondField.position.set(cellSize, cellSize);
+    //root container
+    stage = new PIXI.Container();
+    //injecting containers to root container
     stage.addChild(header);
+    stage.addChild(firstField);
+    stage.addChild(secondField);
+
 
     //appending root container to the html
     document.body.appendChild(renderer.view);
 
     createUiField(humanField.battleField, firstFieldXY, firstField)
     createUiField(humanGuessField.battleField, secondFieldXY, secondField)
-
 
     function createUiField(dataField, startPoint, uiField) {
 
@@ -136,10 +152,10 @@ function setup() {
         let index = secondField.getChildIndex(this);
         humanField.humanAttack(index);
 
+
        // switchCellTexture(this, index, aiField);
         firstField.children.forEach(cell => switchCellTexture(cell, firstField.children.indexOf(cell), humanField))
         secondField.children.forEach(cell => switchCellTexture(cell, secondField.children.indexOf(cell), aiField))
-
     }
 
     function onButtonUp() {
@@ -169,3 +185,4 @@ function animate() {
     requestAnimationFrame( animate );
 }
 
+setup();
