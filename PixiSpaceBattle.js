@@ -1,5 +1,12 @@
+import * as PIXI from 'pixi.js';
 import {humanField, humanGuessField, aiField} from "./NewNavalBattle.js";
-// import * as PIXI from './Content/libs/pixi.js';
+
+import cell from './content/images/sprites/cell-incognito.png'
+import ship from '/content/images/sprites/cell-ship.png'
+import hit from '/content/images/sprites/cell-hit.png'
+import empty from '/content/images/sprites/cell-empty.png'
+import llogo from '/content/images/slogosb.png'
+
 
 let renderer, textureCell, textureCellShip, slogo,
     textureCellHit, textureCellEmpty, stage, firstField, secondField, header, logo,
@@ -9,8 +16,21 @@ let innerHeight = 640;
 const cellSize = 6 * (window.innerHeight / 100);
 const firstFieldXY = [cellSize, cellSize];
 const secondFieldXY = [((innerWidth / 2) + cellSize), 2 * cellSize];
+
 const headerXY = [cellSize, cellSize];
 
+//
+// const loader = new PIXI.Loader();
+// loader.add('ship', 'slogosb.png');
+// loader.onLoad(loader.load((loader, resources) => {
+//     textureCell = resources.ship.texture;
+//     textureCellShip = resources.ship.texture;
+//     textureCellHit = resources.ship.texture;
+//     textureCellEmpty = resources.ship.texture;
+//     logo = resources.ship.texture;
+//     setup();
+// })
+// );
 
 function setup() {
 
@@ -19,14 +39,13 @@ function setup() {
         {backgroundAlpha: 0});
     renderer.resize(1390, 900);//1390х640
 
-    //initializing textures
-    textureCell = PIXI.Texture.from('./Content\\images\\sprites\\cell-incognito.png');
-    textureCellShip = PIXI.Texture.from('Content\\images\\sprites\\cell-ship.png');
-    textureCellHit = PIXI.Texture.from('Content\\images\\sprites\\cell-hit.png');
-    textureCellEmpty = PIXI.Texture.from('Content\\images\\sprites\\cell-empty.png');
-    logo = PIXI.Texture.from('Content\\images\\slogosb.png');
 
-
+    // initializing textures
+    textureCell = PIXI.Texture.from(cell);
+    textureCellShip = PIXI.Texture.from(ship);
+    textureCellHit = PIXI.Texture.from(hit);
+    textureCellEmpty = PIXI.Texture.from(empty);
+    logo = PIXI.Texture.from(llogo);
 
     //initializing containers
     //header section
@@ -178,6 +197,7 @@ function setup() {
 
     // run the render loop
     animate();
+
 }
 
 function animate() {
@@ -185,4 +205,4 @@ function animate() {
     requestAnimationFrame( animate );
 }
 
-setup();
+setup()

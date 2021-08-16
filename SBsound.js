@@ -1,7 +1,4 @@
-import { sound } from '@pixi/sound';
-sound.add('my-sound', 'Content/sounds/MortarCannon.mp3');
-
-
+import {sound} from "@pixi/sound";
 
 
 export function playSound(cellValue) {
@@ -15,3 +12,4 @@ export function playSound(cellValue) {
     }
 }
 
+playSound('#');
