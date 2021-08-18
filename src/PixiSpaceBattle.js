@@ -11,33 +11,20 @@ import llogo from '/content/images/slogosb.png'
 let renderer, textureCell, textureCellShip, slogo,
     textureCellHit, textureCellEmpty, stage, firstField, secondField, header, logo,
     message;
-let innerWidth = 1390;
-let innerHeight = 640;
-const cellSize = 6 * (window.innerHeight / 100);
+
+const canvasWidth = 1390;
+const canvasHeight = 640;
+const cellSize = 7 * (window.innerHeight / 100);
 const firstFieldXY = [cellSize, cellSize];
-const secondFieldXY = [((innerWidth / 2) + cellSize), 2 * cellSize];
-
+const secondFieldXY = [(innerWidth / 2) + cellSize, 2 * cellSize];
 const headerXY = [cellSize, cellSize];
-
-//
-// const loader = new PIXI.Loader();
-// loader.add('ship', 'slogosb.png');
-// loader.onLoad(loader.load((loader, resources) => {
-//     textureCell = resources.ship.texture;
-//     textureCellShip = resources.ship.texture;
-//     textureCellHit = resources.ship.texture;
-//     textureCellEmpty = resources.ship.texture;
-//     logo = resources.ship.texture;
-//     setup();
-// })
-// );
 
 function setup() {
 
     //initializing renderer
     renderer = PIXI.autoDetectRenderer(
         {backgroundAlpha: 0});
-    renderer.resize(1390, 900);//1390х640
+    renderer.resize(innerWidth, innerHeight);//1390х640
 
 
     // initializing textures
@@ -61,7 +48,7 @@ function setup() {
                 align: 'right',
             }
         );
-        message.position.set(innerWidth/2, 0);
+        message.position.set(canvasWidth/2, 0);
     slogo = new PIXI.Sprite(logo);
         slogo.scale.set(1.2,1.2);
         slogo.position.set(cellSize, 0);
@@ -70,9 +57,10 @@ function setup() {
 
     //body section
     firstField = new PIXI.Container();
-         firstField.position.set(cellSize, 2*cellSize);
+    firstField.y =  firstFieldXY[1] + cellSize;
     secondField = new PIXI.Container();
-        secondField.position.set(cellSize, cellSize);
+    secondField.y += cellSize;
+        // secondField.position.set(secondFieldXY[0], secondFieldXY[1]);
     //root container
     stage = new PIXI.Container();
     //injecting containers to root container
