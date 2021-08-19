@@ -1,13 +1,14 @@
+
+
 const _RESOLUTION = 10;
 const _FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
-
 
 class Field {
 
     constructor() {
-        this.battleField = Array.from({ length: _RESOLUTION },
-                () => Array.from({ length: _RESOLUTION },
-                    () => ('@')));
+        this.battleField = Array.from({length: _RESOLUTION},
+            () => Array.from({length: _RESOLUTION},
+                () => ('@')));
     }
 
     getRandomIntInclusive(min, max) {
@@ -42,44 +43,44 @@ class PlayerField extends Field {
 
         if (row === 0) {
             return this.battleField[row][col - 1] === '@'
-                &&  this.battleField[row][col + 1] === '@'
-                &&  this.battleField[row + 1][col + 1] === '@'
-                &&  this.battleField[row + 1][col] === '@'
-                &&  this.battleField[row + 1][col - 1] === '@'
+                && this.battleField[row][col + 1] === '@'
+                && this.battleField[row + 1][col + 1] === '@'
+                && this.battleField[row + 1][col] === '@'
+                && this.battleField[row + 1][col - 1] === '@'
         }
 
         if (row === 9) {
-           return this.battleField[row][col - 1] === '@'
-            &&  this.battleField[row - 1][col - 1] === '@'
-            &&  this.battleField[row - 1][col] === '@'
-            &&  this.battleField[row - 1][col + 1] === '@'
-            &&  this.battleField[row][col + 1] === '@'
+            return this.battleField[row][col - 1] === '@'
+                && this.battleField[row - 1][col - 1] === '@'
+                && this.battleField[row - 1][col] === '@'
+                && this.battleField[row - 1][col + 1] === '@'
+                && this.battleField[row][col + 1] === '@'
         }
 
         if (col === 0) {
             return this.battleField[row - 1][col] === '@'
-                &&  this.battleField[row - 1][col + 1] === '@'
-                &&  this.battleField[row][col + 1] === '@'
-                &&  this.battleField[row + 1][col + 1] === '@'
-                &&  this.battleField[row + 1][col] === '@'
+                && this.battleField[row - 1][col + 1] === '@'
+                && this.battleField[row][col + 1] === '@'
+                && this.battleField[row + 1][col + 1] === '@'
+                && this.battleField[row + 1][col] === '@'
         }
 
         if (col === 9) {
             return this.battleField[row][col - 1] === '@'
-            &&  this.battleField[row - 1][col - 1] === '@'
-            &&  this.battleField[row - 1][col] === '@'
-            &&  this.battleField[row + 1][col] === '@'
-            &&  this.battleField[row + 1][col - 1] === '@'
+                && this.battleField[row - 1][col - 1] === '@'
+                && this.battleField[row - 1][col] === '@'
+                && this.battleField[row + 1][col] === '@'
+                && this.battleField[row + 1][col - 1] === '@'
         }
 
-         return this.battleField[row][col - 1] === '@'
-         &&  this.battleField[row - 1][col - 1] === '@'
-         &&  this.battleField[row - 1][col] === '@'
-         &&  this.battleField[row - 1][col + 1] === '@'
-         &&  this.battleField[row][col + 1] === '@'
-         &&  this.battleField[row + 1][col + 1] === '@'
-         &&  this.battleField[row + 1][col] === '@'
-         &&  this.battleField[row + 1][col - 1] === '@'
+        return this.battleField[row][col - 1] === '@'
+            && this.battleField[row - 1][col - 1] === '@'
+            && this.battleField[row - 1][col] === '@'
+            && this.battleField[row - 1][col + 1] === '@'
+            && this.battleField[row][col + 1] === '@'
+            && this.battleField[row + 1][col + 1] === '@'
+            && this.battleField[row + 1][col] === '@'
+            && this.battleField[row + 1][col - 1] === '@'
 
     }
 
@@ -114,7 +115,7 @@ class PlayerField extends Field {
 
 
         for (let i = 0; i < shipLength; i++) {
-            if (this.battleField[row][col + i] !== '@' || !this.isSurroundingCellsFree([row, col  + i])) {
+            if (this.battleField[row][col + i] !== '@' || !this.isSurroundingCellsFree([row, col + i])) {
                 result = false;
             }
         }
@@ -140,22 +141,192 @@ class PlayerField extends Field {
             }
         }
 
-        for (;!(canBeAttachedVertical || canBeAttachedHorizontal);) {
+        for (; !(canBeAttachedVertical || canBeAttachedHorizontal);) {
             randomCoordinate = this.generateRandomCoordinateXY(randomCoordinate);
             canBeAttachedVertical = this.isCanBeAttachedVertical(shipLength, randomCoordinate);
             canBeAttachedHorizontal = this.isCanBeAttachedHorizontal(shipLength, randomCoordinate);
         }
 
-        console.log("ship " + shipLength + "random " + randomCoordinate + "canbeattached hor and ver " + canBeAttachedHorizontal + canBeAttachedVertical)
-
-        canBeAttachedVertical && canBeAttachedHorizontal ? this.getRandomIntInclusive(0,1) ===1 ? attachVertical() : attachHorizontal() : canBeAttachedVertical ? attachVertical() : attachHorizontal();
+        canBeAttachedVertical && canBeAttachedHorizontal ? this.getRandomIntInclusive(0, 1) === 1 ? attachVertical() : attachHorizontal() : canBeAttachedVertical ? attachVertical() : attachHorizontal();
 
 
     }
 
-    placeShipsOnField () {
+    placeShipsOnField() {
         for (let i = 0; i < this._FLEET.length; i++) {
             this.attachShip(this._FLEET[i]);
+        }
+    }
+
+
+
+    markSunkShip(coordinate, sourceField, guessField) {
+
+        function markSunkDeck(coordinate, sourceField, guessField) {
+            if (coordinate[1] - 1 > -1
+                && sourceField.battleField[coordinate[0]][coordinate[1] - 1] === '@') {
+                guessField.battleField[coordinate[0]][coordinate[1] - 1] = '*';
+                sourceField.battleField[coordinate[0]][coordinate[1] - 1] = '*';
+            }
+            if (coordinate[0] - 1 > -1 && coordinate[1] - 1 > -1
+                && sourceField.battleField[coordinate[0] - 1][coordinate[1] - 1] === '@') {
+                guessField.battleField[coordinate[0] - 1][coordinate[1] - 1] = '*';
+                sourceField.battleField[coordinate[0] - 1][coordinate[1] - 1] = '*';
+            }
+            if (coordinate[0] - 1 > -1
+                && sourceField.battleField[coordinate[0] - 1][coordinate[1]] === '@') {
+                sourceField.battleField[coordinate[0] - 1][coordinate[1]] = '*';
+                guessField.battleField[coordinate[0] - 1][coordinate[1]] = '*';
+            }
+            if (coordinate[0] - 1 > -1 && coordinate[1] + 1 < 10
+                && sourceField.battleField[coordinate[0] - 1][coordinate[1] + 1] === '@') {
+                sourceField.battleField[coordinate[0] - 1][coordinate[1] + 1] = '*';
+                guessField.battleField[coordinate[0] - 1][coordinate[1] + 1] = '*';
+            }
+            if (coordinate[1] + 1 < 10
+                && sourceField.battleField[coordinate[0]][coordinate[1] + 1] === '@') {
+                guessField.battleField[coordinate[0]][coordinate[1] + 1] = '*';
+                sourceField.battleField[coordinate[0]][coordinate[1] + 1] = '*';
+            }
+            if (coordinate[0] + 1 < 10 && coordinate[1] + 1 < 10
+                && sourceField.battleField[coordinate[0] + 1][coordinate[1] + 1] === '@') {
+                guessField.battleField[coordinate[0] + 1][coordinate[1] + 1] = '*';
+                sourceField.battleField[coordinate[0] + 1][coordinate[1] + 1] = '*';
+            }
+            if (coordinate[0] + 1 < 10
+                && sourceField.battleField[coordinate[0] + 1][coordinate[1]] === '@') {
+                sourceField.battleField[coordinate[0] + 1][coordinate[1]] = '*';
+                guessField.battleField[coordinate[0] + 1][coordinate[1]] = '*';
+            }
+            if (coordinate[0] + 1 < 10 && coordinate[1] - 1 > -1
+                && sourceField.battleField[coordinate[0] + 1][coordinate[1] - 1] === '@') {
+                guessField.battleField[coordinate[0] + 1][coordinate[1] - 1] = '*';
+                sourceField.battleField[coordinate[0] + 1][coordinate[1] - 1] = '*';
+            }
+
+        }
+
+        let isOneDeckShip = () => {
+            let result = true;
+            if (coordinate[0] + 1 < 10) { if (!(sourceField.battleField[coordinate[0] + 1][coordinate[1]] === '@'
+                || sourceField.battleField[coordinate[0] + 1][coordinate[1]] === '*')) result = false; }
+            if (coordinate[0] - 1 > -1) { if (!(sourceField.battleField[coordinate[0] - 1][coordinate[1]] === '@'
+                || sourceField.battleField[coordinate[0] - 1][coordinate[1]] === '*')) result = false; }
+            if (coordinate[1] + 1 < 10) { if (!(sourceField.battleField[coordinate[0]][coordinate[1] + 1] === '@'
+                || sourceField.battleField[coordinate[0]][coordinate[1] + 1] === '*')) result = false; }
+            if (coordinate[1] - 1 > -1) { if (!(sourceField.battleField[coordinate[0]][coordinate[1] - 1] === '@'
+                || sourceField.battleField[coordinate[0]][coordinate[1] - 1] === '*')) result = false; }
+            return result;
+        }
+
+        //vert
+        let isSunkVertical = () => {
+
+            if ( (coordinate[0] + 1 < 10 && guessField.battleField[coordinate[0] + 1][coordinate[1]] === 'X')
+                || (coordinate[0] - 1 > -1 && guessField.battleField[coordinate[0] - 1][coordinate[1]] === 'X') ) {
+
+                let topPoint, lowPoint;
+
+                function setTopPoint() {
+                    for (let i = 0; i < 4
+                    && coordinate[0] + i < 10
+                    && guessField.battleField[coordinate[0] + i][coordinate[1]] === 'X'; i++) {
+                        topPoint = [coordinate[0] + i, coordinate[1]];
+                    }
+                }
+
+                function setLowPoint () {
+                    for (let i = 0; i < 4
+                    && coordinate[0] - i > -1
+                    && guessField.battleField[coordinate[0] - i][coordinate[1]] === 'X'; i++) {
+                        lowPoint = [coordinate[0] - i, coordinate[1]];
+                    }
+                }
+
+                setTopPoint();
+                setLowPoint();
+
+                let isCompletelySunkBottomSide = () => {
+                    if ([lowPoint[0] - 1] > -1) {
+                        return sourceField.battleField[lowPoint[0] - 1][lowPoint[1]] !== '#';
+                    } else return sourceField.battleField[lowPoint[0]][lowPoint[1]] === 'X';
+                }
+
+                let isCompletelySunkTopSide = () => {
+                    if ([topPoint[0] + 1] < 10) {
+                        return sourceField.battleField[topPoint[0] + 1][topPoint[1]] !== '#';
+                    } else return sourceField.battleField[topPoint[0]][topPoint[1]] === 'X';
+                }
+
+                return isCompletelySunkTopSide() && isCompletelySunkBottomSide();
+            }
+
+        }
+
+        //horizontal
+        let isSunkHorizontal = () => {
+
+            if ( (coordinate[1] + 1 < 10
+                && guessField.battleField[coordinate[0]][coordinate[1] + 1] === 'X')
+                || ( coordinate[1] - 1 > -1
+                    && guessField.battleField[coordinate[0]][coordinate[1] - 1] === 'X') ) {
+
+                let topPoint, lowPoint;
+
+                function setTopPoint() {
+                    for (let i = 0; i < 4
+                    && coordinate[1] + i < 10
+                    && guessField.battleField[coordinate[0]][coordinate[1] + i] === 'X'; i++) {
+                        topPoint = [coordinate[0], coordinate[1] + i];
+                    }
+                }
+
+                function setLowPoint() {
+                    for (let i = 0; i < 4
+                    && coordinate[1] - i > -1
+                    && guessField.battleField[coordinate[0]][coordinate[1] - i] === 'X'; i++) {
+                        lowPoint = [coordinate[0], coordinate[1] - i];
+                    }
+                }
+
+                setLowPoint();
+                setTopPoint();
+
+                return sourceField.battleField[topPoint[0]][topPoint[1] + 1] !== '#' && sourceField.battleField[lowPoint[0]][lowPoint[1] - 1] !== '#';
+            }
+
+        }
+
+        if (isSunkVertical()) {
+
+            for (let i = 0; i < 4 && coordinate[0] + i < 10
+            && guessField.battleField[coordinate[0] + i][coordinate[1]] === 'X'; i++) {
+                markSunkDeck([coordinate[0] + i, coordinate[1]], sourceField, guessField)
+            }
+
+            for (let i = 0; i < 4 && coordinate[0] - i > -1
+            && guessField.battleField[coordinate[0] - i][coordinate[1]] === 'X'; i++) {
+                markSunkDeck([coordinate[0] - i, coordinate[1]], sourceField, guessField)
+            }
+
+        }
+
+        if (isSunkHorizontal()) {
+
+            for (let i = 0; i < 4 && coordinate[1] + i < 10
+            && guessField.battleField[coordinate[0]][coordinate[1]+ i] === 'X'; i++) {
+                markSunkDeck([coordinate[0], coordinate[1] + i], sourceField, guessField)
+            }
+
+            for (let i = 0; i < 4 && coordinate[1] - i > -1
+            && guessField.battleField[coordinate[0]][coordinate[1] - i] === 'X'; i++) {
+                markSunkDeck([coordinate[0], coordinate[1]  - i], sourceField, guessField)
+            }
+
+        }
+
+        if (isOneDeckShip()) {
+            markSunkDeck(coordinate, sourceField, guessField);
         }
     }
 
@@ -163,11 +334,11 @@ class PlayerField extends Field {
         let result = true;
         for (let row = 0; row < _RESOLUTION; row++) {
             for (let col = 0; col < _RESOLUTION; col++) {
-                if(field.battleField[row][col] === '#') result = false;
+                if (field.battleField[row][col] === '#') result = false;
             }
         }
-        if(result) {
-           alert('GG');
+        if (result) {
+            alert('GG');
         }
     }
 }
@@ -178,25 +349,9 @@ class HumanField extends PlayerField {
         super();
     }
 
-    changeUiCellClass(item, index, field) {
-        let coordinates = this.convertNumberToCoordArr(index);
-        item.classList.remove('incognito','ship','empty', 'hit');
-        switch(field.battleField[coordinates[0]][coordinates[1]]) {
-            case "@": item.classList.add("incognito");
-                break;
-            case "#": item.classList.add("ship");
-                break;
-            case "X": item.classList.add("hit");
-                break;
-            case "*": item.classList.add("empty");
-                break;
-            default: console.log('default in ChangeUiCellClass()')
-                break;
-        }
-    }
-
     humanAttack(index) {
         let coordinates = this.convertNumberToCoordArr(index);
+
         switch (aiField.battleField[coordinates[0]][coordinates[1]]) {
             case '@':
                 aiField.battleField[coordinates[0]][coordinates[1]] = '*';
@@ -206,14 +361,19 @@ class HumanField extends PlayerField {
             case '#':
                 aiField.battleField[coordinates[0]][coordinates[1]] = 'X';
                 humanGuessField.battleField[coordinates[0]][coordinates[1]] = 'X';
+                this.markSunkShip(coordinates, aiField, humanGuessField);
                 break;
             case 'X':
                 break;
             case '*':
                 break;
-            default: alert("DEFAULT in humanAttack");
+            default:
+                alert("DEFAULT in humanAttack");
                 break;
-        } this.isGameOver(aiField);
+        }
+
+
+        this.isGameOver(aiField);
     }
 
 }
@@ -222,13 +382,9 @@ class AiField extends PlayerField {
 
     constructor() {
         super();
-        this.aiAttackVariables = {
-            lastHit: [],
-            probableAttackCoords: new Array(4),
-        }
     }
 
-     aiAttackRandomCoordinate() {
+    aiAttackRandomCoordinate() {
         let coordinate = this.generateRandomCoordinateXY()
         switch (humanField.battleField[coordinate[0]][coordinate[1]]) {
             case '@':
@@ -237,6 +393,7 @@ class AiField extends PlayerField {
             case '#':
                 humanField.battleField[coordinate[0]][coordinate[1]] = 'X';
                 aIguessField.battleField[coordinate[0]][coordinate[1]] = 'X';
+                this.markSunkShip(coordinate, humanField, aIguessField);
                 aiField.aiAttackRandomCoordinate();
                 break;
             case 'X':
@@ -245,14 +402,14 @@ class AiField extends PlayerField {
             case '*':
                 aiField.aiAttackRandomCoordinate();
                 break;
-            default: alert("ERROR in aiAttackRandomCoordinate()");
+            default:
+                alert("ERROR in aiAttackRandomCoordinate()");
                 break;
         }
         this.isGameOver(humanField);
 
     }
 
-    ai
 
     // processAiAttack(lastSuccessAttackCoordinate) {
     //
@@ -656,99 +813,10 @@ class AiField extends PlayerField {
 
 }
 
-const humanField = new HumanField();
-const aiField = new AiField();
-const humanGuessField = new Field();
+export const humanField = new HumanField();
+export const aiField = new AiField();
+export const humanGuessField = new Field();
 const aIguessField = new Field();
-
-
-console.log(humanField);
-console.log(aiField);
-console.log(humanGuessField);
-console.log(aIguessField);
-
-const initialize = () => {
-
-        const uiFirstGameField = document.getElementById("first-game-field");
-        const uiSecondGameField = document.getElementById("second-game-field");
-        const allClickableSquares = [];
-      //  const music = document.getElementById('music');
-      //   document.body.addEventListener('click', function() {
-      //       music.play();
-      //   });
-
-        function fillFirstUiGamePanel() {
-
-            for(let row=0; row < _RESOLUTION; row++) {
-                for (let col=0; col < _RESOLUTION; col++) {
-
-                    let square = document.createElement("div");
-                    square.classList.add("square");
-
-                    switch(humanField.battleField[row][col]) {
-                        case "@": square.classList.add("incognito");
-                            break;
-                        case "#": square.classList.add("ship");
-                            break;
-                        case 'X': square.classList.add("hit");
-                            break;
-                        case "*": square.classList.add("empty");
-                            break;
-                        default:
-                            break;
-                    }
-                 //   uiFirstGameField.appendChild(square);
-                }
-            }
-        }
-
-        function fillSecondUiGamePanel() {
-
-        for (let row = 0; row < _RESOLUTION; row++) {
-            for (let col = 0; col < _RESOLUTION; col++) {
-
-                let square = document.createElement("div");
-                square.classList.add("square");
-                allClickableSquares.push(square);
-                square.addEventListener("click",
-                    function (event) {
-                    console.log('hi');
-                        let index = allClickableSquares.indexOf(event.target);
-                        humanField.humanAttack(index);
-                        humanField.changeUiCellClass(square, index, humanGuessField);
-                        while (uiFirstGameField.firstChild) {
-                            uiFirstGameField.removeChild(uiFirstGameField.firstChild);
-                        }
-                        //fillFirstUiGamePanel();
-                    });
-
-                switch (humanGuessField.battleField[row][col]) {
-                    case "@":
-                        square.classList.add("incognito");
-                        break;
-                    case "#":
-                        square.classList.add("ship");
-                        break;
-                    case "X":
-                        square.classList.add("hit");
-                        break;
-                    case "*":
-                        square.classList.add("empty");
-                        break;
-                    default:
-                        break;
-                }
-                //uiSecondGameField.appendChild(square);
-            }
-
-        }
-    }
-
-    //fillFirstUiGamePanel();
-   // fillSecondUiGamePanel();
-
-
-}
 
 
 
