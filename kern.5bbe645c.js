@@ -117,79 +117,109 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/other/kern.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.kern = void 0;
 
-  return bundleURL;
-}
+var _simpleTable = require("../../simple-table.js");
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+var _lazy = _interopRequireDefault(require("../../../../lazy.js"));
 
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
-  }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-  return '/';
-}
+/**
+ * The OpenType `kern` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/kern
+ *
+ * Also don't use this table anymore =(
+ */
+class kern extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.version = p.uint16;
+    this.nTables = p.uint16; // getting this data is hilarious, because I'm intentionally not implementing subtable 2
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
+    (0, _lazy.default)(this, `tables`, () => {
+      let offset = this.tableStart + 4;
+      const tables = [];
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
+      for (let i = 0; i < this.nTables; i++) {
+        p.currentPosition = offset;
+        let subtable = new KernSubTable(p);
+        tables.push(subtable);
+        offset += subtable;
       }
-    }
 
-    cssTimeout = null;
-  }, 50);
+      return tables;
+    });
+  }
+
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
+exports.kern = kern;
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+class KernSubTable {
+  constructor(p) {
+    this.version = p.uint16;
+    this.length = p.uint16; // length of subtable (including the header)
+    // We deviate from the spec here, because it's ridiculous.
+    // The spec says we have a uin16 that represents 16 bits.
+    // Then you read the description of how to treat those bits,
+    // and you realise it's NOT 16 bits, it's 8 bits of which
+    // bits 0-3 are used, and bits 4-7 are reserved, and then it's
+    // a plain uint8 "format" value. So that's what we do here.
+
+    this.coverage = p.flags(8);
+    this.format = p.uint8;
+
+    if (this.format === 0) {
+      this.nPairs = p.uint16;
+      this.searchRange = p.uint16;
+      this.entrySelector = p.uint16;
+      this.rangeShift = p.uint16;
+      (0, _lazy.default)(this, `pairs`, () => [...new Array(this.nPairs)].map(_ => new Pair(p)));
+    }
+
+    if (this.format === 2) {
+      // Wow. Not only does this font have a kern table, it has a kern table that isn't universally supported. Classy.
+      console.warn(`Kern subtable format 2 is not supported: this parser currently only parses universal table data.`);
+    }
+  }
+
+  get horizontal() {
+    return this.coverage[0];
+  }
+
+  get minimum() {
+    return this.coverage[1];
+  }
+
+  get crossstream() {
+    return this.coverage[2];
+  }
+
+  get override() {
+    return this.coverage[3];
+  }
+
+}
+
+class Pair {
+  constructor(p) {
+    this.left = p.uint16;
+    this.right = p.uint16;
+    this.value = p.fword;
+  }
+
+}
+},{"../../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js","../../../../lazy.js":"node_modules/lib-font/src/lazy.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +247,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +424,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/kern.5bbe645c.js.map

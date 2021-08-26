@@ -117,79 +117,53 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/ttf/loca.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.loca = void 0;
 
-  return bundleURL;
-}
+var _simpleTable = require("../../simple-table.js");
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+var _lazy = _interopRequireDefault(require("../../../../lazy.js"));
 
-    if (matches) {
-      return getBaseURL(matches[0]);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The OpenType `loca` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/loca
+ */
+class loca extends _simpleTable.SimpleTable {
+  constructor(dict, dataview, tables) {
+    const {
+      p
+    } = super(dict, dataview);
+    const n = tables.maxp.numGlyphs + 1; // "plus one" because the offset list needs one extra element to determine the block length for the last supported glyph.
+
+    if (tables.hmtx.indexToLocFormat === 0) {
+      this.x2 = true;
+      (0, _lazy.default)(this, `offsets`, () => [...new Array(n)].map(_ => p.Offset16));
+    } else {
+      (0, _lazy.default)(this, `offsets`, () => [...new Array(n)].map(_ => p.Offset32));
     }
   }
 
-  return '/';
-}
-
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
+  getGlyphDataOffsetAndLength(glyphID) {
+    let offset = this.offsets[glyphID] * this.x2 ? 2 : 1;
+    let nextOffset = this.offsets[glyphID + 1] * this.x2 ? 2 : 1;
+    return {
+      offset,
+      length: nextOffset - offset
+    };
   }
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+exports.loca = loca;
+},{"../../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js","../../../../lazy.js":"node_modules/lib-font/src/lazy.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +191,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +368,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/loca.ad9ab0bd.js.map

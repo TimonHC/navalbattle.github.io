@@ -117,79 +117,94 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/variation/fvar.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.fvar = void 0;
 
-  return bundleURL;
-}
+var _simpleTable = require("../../simple-table.js");
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+var _lazy = _interopRequireDefault(require("../../../../lazy.js"));
 
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
-  }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-  return '/';
-}
+/**
+ * The OpenType `fvar` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/fvar
+ */
+class fvar extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.majorVersion = p.uint16;
+    this.minorVersion = p.uint16;
+    this.axesArrayOffset = p.Offset16;
+    p.uint16;
+    this.axisCount = p.uint16;
+    this.axisSize = p.uint16;
+    this.instanceCount = p.uint16;
+    this.instanceSize = p.uint16;
+    const axisStart = this.tableStart + this.axesArrayOffset;
+    (0, _lazy.default)(this, `axes`, () => {
+      p.currentPosition = axisStart;
+      return [...new Array(this.axisCount)].map(_ => new VariationAxisRecord(p));
+    });
+    const instanceStart = axisStart + this.axisCount * this.axisSize;
+    (0, _lazy.default)(this, `instances`, () => {
+      let instances = [];
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
+      for (let i = 0; i < this.instanceCount; i++) {
+        p.currentPosition = instanceStart + i * this.instanceSize;
+        instances.push(new InstanceRecord(p, this.axisCount, this.instanceSize));
       }
-    }
 
-    cssTimeout = null;
-  }, 50);
+      return instances;
+    });
+  }
+
+  getSupportedAxes() {
+    return this.axes.map(a => a.tag);
+  }
+
+  getAxis(name) {
+    return this.axes.find(a => a.tag === name);
+  }
+
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
+exports.fvar = fvar;
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+class VariationAxisRecord {
+  constructor(p) {
+    this.tag = p.tag;
+    this.minValue = p.fixed;
+    this.defaultValue = p.fixed;
+    this.maxValue = p.fixed;
+    this.flags = p.flags(16);
+    this.axisNameID = p.uint16;
+  }
+
+}
+
+class InstanceRecord {
+  constructor(p, axisCount, size) {
+    let start = p.currentPosition;
+    this.subfamilyNameID = p.uint16;
+    p.uint16;
+    this.coordinates = [...new Array(axisCount)].map(_ => p.fixed);
+
+    if (p.currentPosition - start < size) {
+      this.postScriptNameID = p.uint16;
+    }
+  }
+
+}
+},{"../../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js","../../../../lazy.js":"node_modules/lib-font/src/lazy.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +232,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +409,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/fvar.feb0d981.js.map

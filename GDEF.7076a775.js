@@ -117,79 +117,274 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/advanced/shared/class.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ClassDefinition = void 0;
 
-  return bundleURL;
-}
+class ClassDefinition {
+  constructor(p) {
+    this.classFormat = p.uint16;
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+    if (this.classFormat === 1) {
+      this.startGlyphID = p.uint16;
+      this.glyphCount = p.uint16;
+      this.classValueArray = [...new Array(this.glyphCount)].map(_ => p.uint16);
+    }
 
-    if (matches) {
-      return getBaseURL(matches[0]);
+    if (this.classFormat === 2) {
+      this.classRangeCount = p.uint16;
+      this.classRangeRecords = [...new Array(this.classRangeCount)].map(_ => new ClassRangeRecord(p));
     }
   }
 
-  return '/';
 }
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
+exports.ClassDefinition = ClassDefinition;
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
+class ClassRangeRecord {
+  constructor(p) {
+    this.startGlyphID = p.uint16;
+    this.endGlyphID = p.uint16;
+    this.class = p.uint16;
   }
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
+}
+},{}],"node_modules/lib-font/src/opentype/tables/advanced/shared/itemvariation.js":[function(require,module,exports) {
+"use strict";
 
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ItemVariationStoreTable = void 0;
 
-    cssTimeout = null;
-  }, 50);
+class ItemVariationStoreTable {
+  constructor(table, p) {
+    this.table = table;
+    this.parser = p;
+    this.start = p.currentPosition;
+    this.format = p.uint16;
+    this.variationRegionListOffset = p.Offset32;
+    this.itemVariationDataCount = p.uint16;
+    this.itemVariationDataOffsets = [...new Array(this.itemVariationDataCount)].map(_ => p.Offset32);
+  }
+
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
+exports.ItemVariationStoreTable = ItemVariationStoreTable;
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+class ItemVariationData {
+  constructor(p) {
+    this.itemCount = p.uint16;
+    this.shortDeltaCount = p.uint16;
+    this.regionIndexCount = p.uint16;
+    this.regionIndexes = p.uint16;
+    this.deltaSets = [...new Array(this.itemCount)].map(_ => new DeltaSet(p, this.shortDeltaCount, this.regionIndexCount));
+  }
+
+}
+
+class DeltaSet {
+  constructor(p, shortDeltaCount, regionIndexCount) {
+    // the documentation here seems problematic:
+    //
+    // "Logically, each DeltaSet record has regionIndexCount number of elements.
+    //  The first shortDeltaCount elements are represented as signed 16-bit values
+    //  (int16), and the remaining regionIndexCount - shortDeltaCount elements are
+    //  represented as signed 8-bit values (int8). The length of the data for each
+    //  row is shortDeltaCount + regionIndexCount."
+    //
+    // I'm assuming that should be "the remaining regionIndexCount elements are".
+    this.DeltaData = [];
+
+    while (shortDeltaCount-- > 0) {
+      this.DeltaData.push(p.in16);
+    }
+
+    while (regionIndexCount-- > 0) {
+      this.DeltaData.push(p.int8);
+    }
+  }
+
+}
+},{}],"node_modules/lib-font/src/opentype/tables/advanced/GDEF.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.GDEF = void 0;
+
+var _parser = require("../../../parser.js");
+
+var _simpleTable = require("../simple-table.js");
+
+var _class = require("./shared/class.js");
+
+var _coverage = require("./shared/coverage.js");
+
+var _itemvariation = require("./shared/itemvariation.js");
+
+var _lazy = _interopRequireDefault(require("../../../lazy.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The OpenType `GDEF` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/GDEF
+ */
+class GDEF extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview); // there are three possible versions
+
+    this.majorVersion = p.uint16;
+    this.minorVersion = p.uint16;
+    this.glyphClassDefOffset = p.Offset16;
+    (0, _lazy.default)(this, `glyphClassDefs`, () => {
+      if (this.glyphClassDefOffset === 0) return undefined;
+      p.currentPosition = this.tableStart + this.glyphClassDefOffset;
+      return new _class.ClassDefinition(p);
+    });
+    this.attachListOffset = p.Offset16;
+    (0, _lazy.default)(this, `attachList`, () => {
+      if (this.attachListOffset === 0) return undefined;
+      p.currentPosition = this.tableStart + this.attachListOffset;
+      return new AttachList(p);
+    });
+    this.ligCaretListOffset = p.Offset16;
+    (0, _lazy.default)(this, `ligCaretList`, () => {
+      if (this.ligCaretListOffset === 0) return undefined;
+      p.currentPosition = this.tableStart + this.ligCaretListOffset;
+      return new LigCaretList(p);
+    });
+    this.markAttachClassDefOffset = p.Offset16;
+    (0, _lazy.default)(this, `markAttachClassDef`, () => {
+      if (this.markAttachClassDefOffset === 0) return undefined;
+      p.currentPosition = this.tableStart + this.markAttachClassDefOffset;
+      return new _class.ClassDefinition(p);
+    });
+
+    if (this.minorVersion >= 2) {
+      this.markGlyphSetsDefOffset = p.Offset16;
+      (0, _lazy.default)(this, `markGlyphSetsDef`, () => {
+        if (this.markGlyphSetsDefOffset === 0) return undefined;
+        p.currentPosition = this.tableStart + this.markGlyphSetsDefOffset;
+        return new MarkGlyphSetsTable(p);
+      });
+    }
+
+    if (this.minorVersion === 3) {
+      this.itemVarStoreOffset = p.Offset32;
+      (0, _lazy.default)(this, `itemVarStore`, () => {
+        if (this.itemVarStoreOffset === 0) return undefined;
+        p.currentPosition = this.tableStart + this.itemVarStoreOffset;
+        return new _itemvariation.ItemVariationStoreTable(p);
+      });
+    }
+  }
+
+}
+
+exports.GDEF = GDEF;
+
+class AttachList extends _parser.ParsedData {
+  constructor(p) {
+    super(p);
+    this.coverageOffset = p.Offset16; // Offset to Coverage table - from beginning of AttachList table
+
+    this.glyphCount = p.uint16;
+    this.attachPointOffsets = [...new Array(this.glyphCount)].map(_ => p.Offset16); // From beginning of AttachList table (in Coverage Index order)
+  }
+
+  getPoint(pointID) {
+    this.parser.currentPosition = this.start + this.attachPointOffsets[pointID];
+    return new AttachPoint(this.parser);
+  }
+
+}
+
+class AttachPoint {
+  constructor(p) {
+    this.pointCount = p.uint16;
+    this.pointIndices = [...new Array(this.pointCount)].map(_ => p.uint16);
+  }
+
+}
+
+class LigCaretList extends _parser.ParsedData {
+  constructor(p) {
+    super(p);
+    this.coverageOffset = p.Offset16;
+    (0, _lazy.default)(this, `coverage`, () => {
+      p.currentPosition = this.start + this.coverageOffset;
+      return new _coverage.CoverageTable(p);
+    });
+    this.ligGlyphCount = p.uint16;
+    this.ligGlyphOffsets = [...new Array(this.ligGlyphCount)].map(_ => p.Offset16); // From beginning of LigCaretList table
+  }
+
+  getLigGlyph(ligGlyphID) {
+    this.parser.currentPosition = this.start + this.ligGlyphOffsets[ligGlyphID];
+    return new LigGlyph(this.parser);
+  }
+
+}
+
+class LigGlyph extends _parser.ParsedData {
+  constructor(p) {
+    super(p);
+    this.caretCount = p.uint16;
+    this.caretValueOffsets = [...new Array(this.caretCount)].map(_ => p.Offset16); // From beginning of LigGlyph table
+  }
+
+  getCaretValue(caretID) {
+    this.parser.currentPosition = this.start + this.caretValueOffsets[caretID];
+    return new CaretValue(this.parser);
+  }
+
+}
+
+class CaretValue {
+  constructor(p) {
+    this.caretValueFormat = p.uint16;
+
+    if (this.caretValueFormat === 1) {
+      this.coordinate = p.int16;
+    }
+
+    if (this.caretValueFormat === 2) {
+      this.caretValuePointIndex = p.uint16;
+    }
+
+    if (this.caretValueFormat === 3) {
+      this.coordinate = p.int16;
+      this.deviceOffset = p.Offset16; // Offset to Device table (non-variable font) / Variation Index table (variable font) for X or Y value-from beginning of CaretValue table
+    }
+  }
+
+}
+
+class MarkGlyphSetsTable extends _parser.ParsedData {
+  constructor(p) {
+    super(p);
+    this.markGlyphSetTableFormat = p.uint16;
+    this.markGlyphSetCount = p.uint16;
+    this.coverageOffsets = [...new Array(this.markGlyphSetCount)].map(_ => p.Offset32);
+  }
+
+  getMarkGlyphSet(markGlyphSetID) {
+    this.parser.currentPosition = this.start + this.coverageOffsets[markGlyphSetID];
+    return new _coverage.CoverageTable(this.parser);
+  }
+
+}
+},{"../../../parser.js":"node_modules/lib-font/src/parser.js","../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js","./shared/class.js":"node_modules/lib-font/src/opentype/tables/advanced/shared/class.js","./shared/coverage.js":"node_modules/lib-font/src/opentype/tables/advanced/shared/coverage.js","./shared/itemvariation.js":"node_modules/lib-font/src/opentype/tables/advanced/shared/itemvariation.js","../../../lazy.js":"node_modules/lib-font/src/lazy.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +412,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +589,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/GDEF.7076a775.js.map

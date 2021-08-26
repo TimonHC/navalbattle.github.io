@@ -51266,7 +51266,7 @@ exports.filters = filters;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.humanGuessField = exports.aiField = exports.humanField = void 0;
+exports.humanGuessField = exports.aiField = exports.humanField = exports.gameIsOver = void 0;
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -51292,6 +51292,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var _RESOLUTION = 10;
 var _FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+var gameIsOver = false;
+exports.gameIsOver = gameIsOver;
 
 var Field = /*#__PURE__*/function () {
   function Field() {
@@ -51611,6 +51613,7 @@ var PlayerField = /*#__PURE__*/function (_Field) {
 
       if (result) {
         alert('GG');
+        exports.gameIsOver = gameIsOver = true;
       }
     }
   }]);
@@ -52136,7 +52139,7 @@ var PIXI = _interopRequireWildcard(require("pixi.js"));
 
 var _NewNavalBattle = require("./NewNavalBattle.js");
 
-var _cellIncognito = _interopRequireDefault(require("./content/images/sprites/cell-incognito.png"));
+var _cellIncognito = _interopRequireDefault(require("/content/images/sprites/cell-incognito.png"));
 
 var _cellShip = _interopRequireDefault(require("/content/images/sprites/cell-ship.png"));
 
@@ -52152,13 +52155,15 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-var renderer, textureCell, textureCellShip, slogo, textureCellHit, textureCellEmpty, stage, firstField, secondField, header, logo, message;
+var renderer, textureCell, textureCellShip, slogo, textureCellHit, textureCellEmpty, stage, firstField, secondField, header, logo, message, gameOverScene, goMessage, state, introScene, introMessage, introSkipButton;
+var count = 0;
+var introMessageText = 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n' + 'BLABLABLA\n';
 var canvasWidth = 1390;
 var canvasHeight = 640;
 var cellSize = 7 * (window.innerHeight / 100);
 var firstFieldXY = [cellSize, cellSize];
 var secondFieldXY = [innerWidth / 2 + cellSize, 2 * cellSize];
-var headerXY = [cellSize, cellSize];
+var headerXY = [cellSize, cellSize / 2];
 
 function setup() {
   //initializing renderer
@@ -52178,12 +52183,15 @@ function setup() {
   header.x = headerXY[0];
   header.y = headerXY[1]; //header text
 
-  message = new PIXI.Text("SPACE BATTLE", {
-    fontFamily: 'Star Jedi',
-    fontSize: 50,
-    fill: 'orange',
-    align: 'right'
-  });
+  (function createHeaderText() {
+    message = new PIXI.Text("SPACE \nBATTLE", {
+      fontFamily: 'Star Jedi',
+      fontSize: 70,
+      fill: 'orange',
+      align: 'right'
+    });
+  })();
+
   message.position.set(canvasWidth / 2, 0);
   slogo = new PIXI.Sprite(logo);
   slogo.scale.set(1.2, 1.2);
@@ -52194,14 +52202,54 @@ function setup() {
   firstField = new PIXI.Container();
   firstField.y = firstFieldXY[1] + cellSize;
   secondField = new PIXI.Container();
-  secondField.y += cellSize; // secondField.position.set(secondFieldXY[0], secondFieldXY[1]);
-  //root container
+  secondField.y += cellSize; //game over section
+
+  gameOverScene = new PIXI.Container();
+  goMessage = new PIXI.Text("The End!", {
+    fontFamily: 'Star Jedi',
+    fontSize: 200,
+    fill: 'orange',
+    align: 'center'
+  });
+  goMessage.x = innerWidth / 4;
+  goMessage.y = innerHeight / 2;
+  gameOverScene.addChild(goMessage);
+  gameOverScene.visible = false;
+  introScene = new PIXI.Container();
+  introMessage = new PIXI.Text(introMessageText, {
+    fontFamily: 'Star Jedi',
+    fontSize: 200,
+    fill: 'orange',
+    align: 'center'
+  });
+  introMessage.x = innerWidth / 6;
+  introMessage.y = innerHeight;
+  introSkipButton = new PIXI.Text("skip intro ->", {
+    fontFamily: 'Star Jedi',
+    fontSize: 50,
+    fill: 'orange',
+    align: 'top'
+  });
+  introSkipButton.x = innerWidth / 3;
+  introSkipButton.buttonMode = true;
+  introSkipButton.interactive = true;
+
+  function skipIntro() {
+    state = play;
+  }
+
+  introSkipButton.on('click', skipIntro);
+  introScene.addChild(introMessage);
+  introScene.addChild(introSkipButton);
+  introScene.visible = true; //root container
 
   stage = new PIXI.Container(); //injecting containers to root container
 
   stage.addChild(header);
   stage.addChild(firstField);
-  stage.addChild(secondField); //appending root container to the html
+  stage.addChild(secondField);
+  stage.addChild(gameOverScene);
+  stage.addChild(introScene); //appending root container to the html
 
   document.body.appendChild(renderer.view);
   createUiField(_NewNavalBattle.humanField.battleField, firstFieldXY, firstField);
@@ -52304,6 +52352,7 @@ function setup() {
     secondField.children.forEach(function (cell) {
       return switchCellTexture(cell, secondField.children.indexOf(cell), _NewNavalBattle.aiField);
     });
+    if (_NewNavalBattle.gameIsOver) state = end;
   }
 
   function onButtonUp() {
@@ -52326,16 +52375,45 @@ function setup() {
   } // run the render loop
 
 
+  state = intro;
   animate();
 }
 
 function animate() {
   renderer.render(stage);
+  state();
   requestAnimationFrame(animate);
 }
 
+function play() {
+  gameOverScene.visible = false;
+  introScene.visible = false;
+  header.visible = true;
+  firstField.visible = true;
+  secondField.visible = true;
+}
+
+function intro() {
+  count += 0.1;
+  introMessage.y -= 1;
+  introMessage.scale.x = 1 + Math.sin(count) * 0.04;
+  introMessage.scale.y = 1 + Math.cos(count) * 0.04;
+  header.visible = false;
+  firstField.visible = false;
+  secondField.visible = false;
+  gameOverScene.visible = false;
+  introScene.visible = true;
+}
+
+function end() {
+  firstField.visible = false;
+  secondField.visible = false;
+  introScene.visible = false;
+  gameOverScene.visible = true;
+}
+
 setup();
-},{"pixi.js":"node_modules/pixi.js/dist/esm/pixi.js","./NewNavalBattle.js":"NewNavalBattle.js","./content/images/sprites/cell-incognito.png":"content/images/sprites/cell-incognito.png","/content/images/sprites/cell-ship.png":"content/images/sprites/cell-ship.png","/content/images/sprites/cell-hit.png":"content/images/sprites/cell-hit.png","/content/images/sprites/cell-empty.png":"content/images/sprites/cell-empty.png","/content/images/slogosb.png":"content/images/slogosb.png"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"pixi.js":"node_modules/pixi.js/dist/esm/pixi.js","./NewNavalBattle.js":"NewNavalBattle.js","/content/images/sprites/cell-incognito.png":"content/images/sprites/cell-incognito.png","/content/images/sprites/cell-ship.png":"content/images/sprites/cell-ship.png","/content/images/sprites/cell-hit.png":"content/images/sprites/cell-hit.png","/content/images/sprites/cell-empty.png":"content/images/sprites/cell-empty.png","/content/images/slogosb.png":"content/images/slogosb.png"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -52363,7 +52441,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56123" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

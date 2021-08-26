@@ -117,79 +117,123 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/name.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.name = void 0;
+
+var _parser = require("../../../parser.js");
+
+var _simpleTable = require("../simple-table.js");
+
+var _lazy = _interopRequireDefault(require("../../../lazy.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The OpenType `name` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/name
+ */
+class name extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.format = p.uint16;
+    this.count = p.uint16;
+    this.stringOffset = p.Offset16; // relative to start of table
+    // name records
+
+    this.nameRecords = [...new Array(this.count)].map(_ => new NameRecord(p, this)); // lang-tag records, if applicable
+
+    if (this.format === 1) {
+      this.langTagCount = p.uint16;
+      this.langTagRecords = [...new Array(this.langTagCount)].map(_ => new LangTagRecord(p.uint16, p.Offset16));
+    } // cache these values for use in `.get(nameID)`
+
+
+    this.stringStart = this.tableStart + this.stringOffset;
+  }
+  /**
+   * Resolve a string by ID
+   * @param {uint16} nameID the id used to find the name record to resolve.
+   */
+
+
+  get(nameID) {
+    let record = this.nameRecords.find(record => record.nameID === nameID);
+    if (record) return record.string;
   }
 
-  return bundleURL;
 }
+/**
+ * ...docs go here...
+ */
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
 
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
+exports.name = name;
+
+class LangTagRecord {
+  constructor(length, offset) {
+    this.length = length;
+    this.offset = offset;
   }
 
-  return '/';
 }
+/**
+ * ...docs go here...
+ */
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
+class NameRecord {
+  constructor(p, nameTable) {
+    this.platformID = p.uint16;
+    this.encodingID = p.uint16;
+    this.languageID = p.uint16;
+    this.nameID = p.uint16;
+    this.length = p.uint16;
+    this.offset = p.Offset16;
+    (0, _lazy.default)(this, `string`, () => {
+      p.currentPosition = nameTable.stringStart + this.offset;
+      return decodeString(p, this);
+    });
   }
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
 }
+/**
+ * Specific platforms and platform/encoding combinations encode strings in
+ * different ways.
+ */
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+function decodeString(p, record) {
+  const {
+    platformID,
+    length
+  } = record;
+  if (length === 0) return ``; // We decode strings for the Unicode/Microsoft platforms as UTF-16
+
+  if (platformID === 0 || platformID === 3) {
+    const str = [];
+
+    for (let i = 0, e = length / 2; i < e; i++) str[i] = String.fromCharCode(p.uint16);
+
+    return str.join(``);
+  } // Everything else, we treat as plain bytes.
+
+
+  const bytes = p.readBytes(length);
+  const str = [];
+  bytes.forEach(function (b, i) {
+    str[i] = String.fromCharCode(b);
+  });
+  return str.join(``); // TODO: if someone wants to finesse this/implement all the other string encodings, have at it!
+}
+},{"../../../parser.js":"node_modules/lib-font/src/parser.js","../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js","../../../lazy.js":"node_modules/lib-font/src/lazy.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +261,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +438,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/name.37db44aa.js.map

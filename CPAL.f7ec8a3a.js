@@ -117,79 +117,101 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/color/CPAL.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.CPAL = void 0;
 
-  return bundleURL;
-}
+var _simpleTable = require("../../simple-table.js");
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+var _lazy = _interopRequireDefault(require("../../../../lazy.js"));
 
-    if (matches) {
-      return getBaseURL(matches[0]);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The OpenType `CPAL` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/CPAL
+ */
+class CPAL extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.version = p.uint16;
+    this.numPaletteEntries = p.uint16;
+    const numPalettes = this.numPalettes = p.uint16;
+    this.numColorRecords = p.uint16;
+    this.offsetFirstColorRecord = p.Offset32;
+    this.colorRecordIndices = [...new Array(this.numPalettes)].map(_ => p.uint16);
+    (0, _lazy.default)(this, `colorRecords`, () => {
+      p.currentPosition = this.tableStart + this.offsetFirstColorRecord;
+      return [...new Array(this.numColorRecords)].map(_ => new ColorRecord(p));
+    }); // Index of each palette’s first color record in the combined color record array.
+
+    if (this.version === 1) {
+      this.offsetPaletteTypeArray = p.Offset32; // from the beginning of CPAL table to the Palette Type Array.
+
+      this.offsetPaletteLabelArray = p.Offset32; // from the beginning of CPAL table to the Palette Labels Array.
+
+      this.offsetPaletteEntryLabelArray = p.Offset32; // from the beginning of CPAL table to the Palette Entry Label Array.
+
+      (0, _lazy.default)(this, `paletteTypeArray`, () => {
+        p.currentPosition = this.tableStart + this.offsetPaletteTypeArray;
+        return new PaletteTypeArray(p, numPalettes);
+      });
+      (0, _lazy.default)(this, `paletteLabelArray`, () => {
+        p.currentPosition = this.tableStart + this.offsetPaletteLabelArray;
+        return new PaletteLabelsArray(p, numPalettes);
+      });
+      (0, _lazy.default)(this, `paletteEntryLabelArray`, () => {
+        p.currentPosition = this.tableStart + this.offsetPaletteEntryLabelArray;
+        return new PaletteEntryLabelArray(p, numPalettes);
+      });
     }
   }
 
-  return '/';
 }
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
+exports.CPAL = CPAL;
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
+class ColorRecord {
+  constructor(p) {
+    this.blue = p.uint8;
+    this.green = p.uint8;
+    this.red = p.uint8;
+    this.alpha = p.uint8;
   }
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
+class PaletteTypeArray {
+  constructor(p, numPalettes) {
+    // see https://docs.microsoft.com/en-us/typography/opentype/spec/cpal#palette-type-array
+    this.paletteTypes = [...new Array(numPalettes)].map(_ => p.uint32);
+  }
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+}
+
+class PaletteLabelsArray {
+  constructor(p, numPalettes) {
+    // see https://docs.microsoft.com/en-us/typography/opentype/spec/cpal#palette-labels-array
+    this.paletteLabels = [...new Array(numPalettes)].map(_ => p.uint16);
+  }
+
+}
+
+class PaletteEntryLabelArray {
+  constructor(p, numPalettes) {
+    // see https://docs.microsoft.com/en-us/typography/opentype/spec/cpal#palette-entry-label-array
+    this.paletteEntryLabels = [...new Array(numPalettes)].map(_ => p.uint16);
+  }
+
+}
+},{"../../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js","../../../../lazy.js":"node_modules/lib-font/src/lazy.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +239,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +416,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/CPAL.f7ec8a3a.js.map

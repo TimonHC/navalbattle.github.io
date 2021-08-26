@@ -117,79 +117,94 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/color/COLR.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.COLR = void 0;
+
+var _simpleTable = require("../../simple-table.js");
+
+/**
+ * The OpenType `COLR` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/COLR
+ */
+class COLR extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.version = p.uint16;
+    this.numBaseGlyphRecords = p.uint16;
+    this.baseGlyphRecordsOffset = p.Offset32; // from beginning of COLR table) to Base Glyph records.
+
+    this.layerRecordsOffset = p.Offset32; // from beginning of COLR table) to Layer Records.
+
+    this.numLayerRecords = p.uint16;
   }
 
-  return bundleURL;
-}
+  getBaseGlyphRecord(glyphID) {
+    // the documentation recommends doing a binary search to find the record,
+    // and so we shall. The size of a BaseGlyphRecord is 6 bytes, so off we go!
+    let start = this.tableStart + this.baseGlyphRecordsOffset;
+    this.parser.currentPosition = start;
+    let first = new BaseGlyphRecord(this.parser);
+    let firstID = first.gID;
+    let end = this.tableStart + this.layerRecordsOffset - 6;
+    this.parser.currentPosition = end;
+    let last = new BaseGlyphRecord(this.parser);
+    let lastID = last.gID; // right. Onward, to victory!
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+    if (firstID === glyphID) return first;
+    if (lastID === glyphID) return last; // delayed gratification!
 
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
-  }
-
-  return '/';
-}
-
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
+    while (true) {
+      if (start === end) break;
+      let mid = start + (end - start) / 12;
+      this.parser.currentPosition = mid;
+      let middle = new BaseGlyphRecord(this.parser);
+      let midID = middle.gID;
+      if (midID === glyphID) return middle; // curses!
+      else if (midID > glyphID) {
+        end = mid;
+      } else if (midID < glyphID) {
+        start = mid;
       }
     }
 
-    cssTimeout = null;
-  }, 50);
+    return false;
+  }
+
+  getLayers(glyphID) {
+    let record = this.getBaseGlyphRecord(glyphID);
+    this.parser.currentPosition = this.tableStart + this.layerRecordsOffset + 4 * record.firstLayerIndex;
+    return [...new Array(record.numLayers)].map(_ => new LayerRecord(p));
+  }
+
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
+exports.COLR = COLR;
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+class BaseGlyphRecord {
+  constructor(p) {
+    this.gID = p.uint16;
+    this.firstLayerIndex = p.uint16;
+    this.numLayers = p.uint16;
+  }
+
+}
+
+class LayerRecord {
+  constructor(p) {
+    this.gID = p.uint16;
+    this.paletteIndex = p.uint16;
+  }
+
+}
+},{"../../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +232,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +409,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/COLR.c660372e.js.map

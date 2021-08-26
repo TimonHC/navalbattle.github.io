@@ -1,0 +1,131 @@
+:root {
+    --var-cell-size: calc(7vmin);
+    --var-field-size: calc(70vmin);
+    --color-orange: #b3821a;
+    --color-space:  #414a4c;
+    --color-white: #dddedf;
+    --color-fire: #b31a4b;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-image: url("https://s3-us-west-2.amazonaws.com/s.cdpn.io/499416/demo-bg.jpg");
+    background-size: cover;
+    background-repeat: inherit;
+    margin: 0;
+    padding: 0;
+    max-width:100%;
+    display: block;
+}
+
+header {
+    background: linear-gradient(0deg, transparent, var(--color-space));
+    display: block;
+    height: calc(1.5*var(--var-cell-size));
+    text-align: center;
+}
+
+header h1 {
+    vertical-align: middle;
+    width: 50%;
+    display: inline-block;
+    background: transparent;
+    font-size: calc(var(--var-cell-size) + 3vmin);
+    font-family: "Star Jedi", serif;
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: orange;
+    color: orange;
+}
+
+header img {
+    vertical-align: middle;
+    display: inline-block;
+}
+
+#game-content-wrapper-block {
+    margin-top: calc(var(--var-cell-size)/2);
+    margin-bottom: calc(var(--var-cell-size)/2);
+    position: center;
+    width: 100%;
+    display: block;
+}
+
+.game-field {
+    margin: var(--var-cell-size);
+    margin-top: calc(0.5*var(--var-cell-size));
+    box-shadow: 0 0 10px rgba(179,130,26,0.5);
+    display: inline-flex;
+    flex-flow: row wrap;
+    width: var(--var-field-size);
+    height: var(--var-field-size);
+}
+
+.game-field #second-game-field {
+    float:right;
+}
+
+.square {
+    width: var(--var-cell-size);
+    height: var(--var-cell-size);
+    border: 1px solid rgba(179,130,26,0.2);
+    background-color: #eee;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: .3s linear;
+}
+
+.square.ship {
+    background-color: #414a4c;
+}
+
+.square.empty {
+    background-color: transparent;
+}
+
+.square.incognito {
+    background-color: #dddedf;
+}
+
+.square.hit {
+    background-color: var(--color-fire);
+    opacity: 0.75;
+}
+
+.square:hover {
+    box-shadow: 200px 0 0 0 rgba(0,0,0,.3) inset;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(1.5*var(--var-cell-size));
+    background: linear-gradient(0deg, var(--color-space), transparent);
+}
+
+#github-logo {
+    height: calc(1.35*var(--var-cell-size));
+    opacity: 0.7;
+    display: block;
+    margin: 0 auto;
+}
+
+#github-logo:hover {
+    box-shadow: 0 0 100px 1px rgba(179, 130, 26, 0.9);
+    border-radius: 100%;
+    transition: all ease 1s;
+}
+
+
+@font-face {
+    font-family: "Star Jedi";
+    src: url("/Starjhol.044fcb66.ttf") format("truetype"); /* Путь к файлу со шрифтом */
+}
+
+
+/*# sourceMappingURL=/NavalBattleStyle.ae460350.css.map */

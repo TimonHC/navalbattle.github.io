@@ -117,79 +117,209 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/advanced/BASE.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.BASE = void 0;
 
-  return bundleURL;
-}
+var _lazy = _interopRequireDefault(require("../../../lazy.js"));
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+var _simpleTable = require("../simple-table.js");
 
-    if (matches) {
-      return getBaseURL(matches[0]);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The OpenType `BASE` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/BASE
+ */
+class BASE extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.majorVersion = p.uint16;
+    this.minorVersion = p.uint16;
+    this.horizAxisOffset = p.Offset16; // from beginning of BASE table
+
+    this.vertAxisOffset = p.Offset16; // from beginning of BASE table
+
+    (0, _lazy.default)(this, `horizAxis`, () => new AxisTable({
+      offset: dict.offset + this.horizAxisOffset
+    }, dataview));
+    (0, _lazy.default)(this, `vertAxis`, () => new AxisTable({
+      offset: dict.offset + this.vertAxisOffset
+    }, dataview));
+
+    if (this.majorVersion === 1 && this.minorVersion === 1) {
+      this.itemVarStoreOffset = p.Offset32; // from beginning of BASE table
+
+      (0, _lazy.default)(this, `itemVarStore`, () => new AxisTable({
+        offset: dict.offset + this.itemVarStoreOffset
+      }, dataview));
     }
   }
 
-  return '/';
 }
+/**
+ * Axis table
+ */
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
+exports.BASE = BASE;
 
-function updateLink(link) {
-  var newLink = link.cloneNode();
+class AxisTable extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview, `AxisTable`);
+    this.baseTagListOffset = p.Offset16; // from beginning of Axis table
 
-  newLink.onload = function () {
-    link.remove();
-  };
+    this.baseScriptListOffset = p.Offset16; // from beginning of Axis table
 
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
+    (0, _lazy.default)(this, `baseTagList`, () => new BaseTagListTable({
+      offset: dict.offset + this.baseTagListOffset
+    }, dataview));
+    (0, _lazy.default)(this, `baseScriptList`, () => new BaseScriptListTable({
+      offset: dict.offset + this.baseScriptListOffset
+    }, dataview));
   }
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
+class BaseTagListTable extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview, `BaseTagListTable`);
+    this.baseTagCount = p.uint16; // TODO: make lazy?
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+    this.baselineTags = [...new Array(this.baseTagCount)].map(_ => p.tag);
+  }
+
+}
+
+class BaseScriptListTable extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview, `BaseScriptListTable`);
+    this.baseScriptCount = p.uint16;
+    const recordStart = p.currentPosition;
+    (0, _lazy.default)(this, `baseScriptRecords`, () => {
+      p.currentPosition = recordStart;
+      return [...new Array(this.baseScriptCount)].map(_ => new BaseScriptRecord(this.start, p));
+    });
+  }
+
+}
+
+class BaseScriptRecord {
+  constructor(baseScriptListTableStart, p) {
+    this.baseScriptTag = p.tag;
+    this.baseScriptOffset = p.Offset16; // from beginning of BaseScriptList
+
+    (0, _lazy.default)(this, `baseScriptTable`, () => {
+      p.currentPosition = baseScriptListTableStart + this.baseScriptOffset;
+      return new BaseScriptTable(p);
+    });
+  }
+
+}
+
+class BaseScriptTable {
+  constructor(p) {
+    this.start = p.currentPosition;
+    this.baseValuesOffset = p.Offset16; // from beginning of BaseScript table
+
+    this.defaultMinMaxOffset = p.Offset16; // from beginning of BaseScript table
+
+    this.baseLangSysCount = p.uint16;
+    this.baseLangSysRecords = [...new Array(this.baseLangSysCount)].map(_ => new BaseLangSysRecord(this.start, p));
+    (0, _lazy.default)(this, `baseValues`, () => {
+      p.currentPosition = this.start + this.baseValuesOffset;
+      return new BaseValuesTable(p);
+    });
+    (0, _lazy.default)(this, `defaultMinMax`, () => {
+      p.currentPosition = this.start + this.defaultMinMaxOffset;
+      return new MinMaxTable(p);
+    });
+  }
+
+}
+
+class BaseLangSysRecord {
+  constructor(baseScriptTableStart, p) {
+    this.baseLangSysTag = p.tag;
+    this.minMaxOffset = p.Offset16; // from beginning of BaseScript table
+
+    (0, _lazy.default)(this, `minMax`, () => {
+      p.currentPosition = baseScriptTableStart + this.minMaxOffset;
+      return new MinMaxTable(p);
+    });
+  }
+
+}
+
+class BaseValuesTable {
+  constructor(p) {
+    this.parser = p;
+    this.start = p.currentPosition;
+    this.defaultBaselineIndex = p.uint16;
+    this.baseCoordCount = p.uint16;
+    this.baseCoords = [...new Array(this.baseCoordCount)].map(_ => p.Offset16);
+  }
+
+  getTable(id) {
+    this.parser.currentPosition = this.start + this.baseCoords[id];
+    return new BaseCoordTable(this.parser);
+  }
+
+}
+
+class MinMaxTable {
+  constructor(p) {
+    this.minCoord = p.Offset16;
+    this.maxCoord = p.Offset16;
+    this.featMinMaxCount = p.uint16;
+    const recordStart = p.currentPosition;
+    (0, _lazy.default)(this, `featMinMaxRecords`, () => {
+      p.currentPosition = recordStart;
+      return [...new Array(this.featMinMaxCount)].map(_ => new FeatMinMaxRecord(p));
+    });
+  }
+
+}
+
+class FeatMinMaxRecord {
+  constructor(p) {
+    this.featureTableTag = p.tag;
+    this.minCoord = p.Offset16;
+    this.maxCoord = p.Offset16;
+  }
+
+}
+
+class BaseCoordTable {
+  constructor(p) {
+    this.baseCoordFormat = p.uint16;
+    this.coordinate = p.int16;
+
+    if (this.baseCoordFormat === 2) {
+      this.referenceGlyph = p.uint16;
+      this.baseCoordPoint = p.uint16;
+    }
+
+    if (this.baseCoordFormat === 3) {
+      this.deviceTable = p.Offset16;
+    }
+  }
+
+}
+},{"../../../lazy.js":"node_modules/lib-font/src/lazy.js","../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +347,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +524,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/BASE.b7d116ca.js.map

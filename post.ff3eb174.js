@@ -117,79 +117,91 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/post.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.post = void 0;
 
-  return bundleURL;
-}
+var _simpleTable = require("../simple-table.js");
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+/**
+ * The OpenType `post` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/post
+ */
+class post extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.version = p.legacyFixed;
+    this.italicAngle = p.fixed;
+    this.underlinePosition = p.fword;
+    this.underlineThickness = p.fword;
+    this.isFixedPitch = p.uint32;
+    this.minMemType42 = p.uint32;
+    this.maxMemType42 = p.uint32;
+    this.minMemType1 = p.uint32;
+    this.maxMemType1 = p.uint32;
+    if (this.version === 1 || this.version === 3) return p.verifyLength();
+    this.numGlyphs = p.uint16;
 
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
-  }
+    if (this.version === 2) {
+      this.glyphNameIndex = [...new Array(this.numGlyphs)].map(_ => p.uint16); // Note: we don't actually build `this.names` because it's a frankly bizarre
+      // byte blob that encodes strings as "length-and-then-bytes" such that it
+      // needs to be loaded entirely in memory before it's useful. That's fine for
+      // printers, but is nuts for anything else.
+      // Instead, we parse the data only enough to build a NEW type of lookup that
+      // tells us which offset a glyph's name bytes are inside the names blob, with
+      // the length of a name determined by offsets[next] - offsets[this].
 
-  return '/';
-}
+      this.namesOffset = p.currentPosition;
+      this.glyphNameOffsets = [1];
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
+      for (let i = 0; i < this.numGlyphs; i++) {
+        let index = this.glyphNameIndex[i];
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
+        if (index < macStrings.length) {
+          this.glyphNameOffsets.push(this.glyphNameOffsets[i]);
+          continue;
+        }
 
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
+        let bytelength = p.int8;
+        p.skip(bytelength);
+        this.glyphNameOffsets.push(this.glyphNameOffsets[i] + bytelength + 1);
       }
     }
 
-    cssTimeout = null;
-  }, 50);
+    if (this.version === 2.5) {
+      this.offset = [...new Array(this.numGlyphs)].map(_ => p.int8);
+    }
+  }
+
+  getGlyphName(glyphid) {
+    if (this.version !== 2) {
+      console.warn(`post table version ${this.version} does not support glyph name lookups`);
+      return ``;
+    }
+
+    let index = this.glyphNameIndex[glyphid];
+    if (index < 258) return macStrings[index];
+    let offset = this.glyphNameOffsets[glyphid];
+    let next = this.glyphNameOffsets[glyphid + 1];
+    let len = next - offset - 1;
+    if (len === 0) return `.notdef.`;
+    this.parser.currentPosition = this.namesOffset + offset;
+    const data = this.parser.readBytes(len, this.namesOffset + offset, 8, true);
+    return data.map(b => String.fromCharCode(b)).join(``);
+  }
+
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+exports.post = post;
+const macStrings = [`.notdef`, `.null`, `nonmarkingreturn`, `space`, `exclam`, `quotedbl`, `numbersign`, `dollar`, `percent`, `ampersand`, `quotesingle`, `parenleft`, `parenright`, `asterisk`, `plus`, `comma`, `hyphen`, `period`, `slash`, `zero`, `one`, `two`, `three`, `four`, `five`, `six`, `seven`, `eight`, `nine`, `colon`, `semicolon`, `less`, `equal`, `greater`, `question`, `at`, `A`, `B`, `C`, `D`, `E`, `F`, `G`, `H`, `I`, `J`, `K`, `L`, `M`, `N`, `O`, `P`, `Q`, `R`, `S`, `T`, `U`, `V`, `W`, `X`, `Y`, `Z`, `bracketleft`, `backslash`, `bracketright`, `asciicircum`, `underscore`, `grave`, `a`, `b`, `c`, `d`, `e`, `f`, `g`, `h`, `i`, `j`, `k`, `l`, `m`, `n`, `o`, `p`, `q`, `r`, `s`, `t`, `u`, `v`, `w`, `x`, `y`, `z`, `braceleft`, `bar`, `braceright`, `asciitilde`, `Adieresis`, `Aring`, `Ccedilla`, `Eacute`, `Ntilde`, `Odieresis`, `Udieresis`, `aacute`, `agrave`, `acircumflex`, `adieresis`, `atilde`, `aring`, `ccedilla`, `eacute`, `egrave`, `ecircumflex`, `edieresis`, `iacute`, `igrave`, `icircumflex`, `idieresis`, `ntilde`, `oacute`, `ograve`, `ocircumflex`, `odieresis`, `otilde`, `uacute`, `ugrave`, `ucircumflex`, `udieresis`, `dagger`, `degree`, `cent`, `sterling`, `section`, `bullet`, `paragraph`, `germandbls`, `registered`, `copyright`, `trademark`, `acute`, `dieresis`, `notequal`, `AE`, `Oslash`, `infinity`, `plusminus`, `lessequal`, `greaterequal`, `yen`, `mu`, `partialdiff`, `summation`, `product`, `pi`, `integral`, `ordfeminine`, `ordmasculine`, `Omega`, `ae`, `oslash`, `questiondown`, `exclamdown`, `logicalnot`, `radical`, `florin`, `approxequal`, `Delta`, `guillemotleft`, `guillemotright`, `ellipsis`, `nonbreakingspace`, `Agrave`, `Atilde`, `Otilde`, `OE`, `oe`, `endash`, `emdash`, `quotedblleft`, `quotedblright`, `quoteleft`, `quoteright`, `divide`, `lozenge`, `ydieresis`, `Ydieresis`, `fraction`, `currency`, `guilsinglleft`, `guilsinglright`, `fi`, `fl`, `daggerdbl`, `periodcentered`, `quotesinglbase`, `quotedblbase`, `perthousand`, `Acircumflex`, `Ecircumflex`, `Aacute`, `Edieresis`, `Egrave`, `Iacute`, `Icircumflex`, `Idieresis`, `Igrave`, `Oacute`, `Ocircumflex`, `apple`, `Ograve`, `Uacute`, `Ucircumflex`, `Ugrave`, `dotlessi`, `circumflex`, `tilde`, `macron`, `breve`, `dotaccent`, `ring`, `cedilla`, `hungarumlaut`, `ogonek`, `caron`, `Lslash`, `lslash`, `Scaron`, `scaron`, `Zcaron`, `zcaron`, `brokenbar`, `Eth`, `eth`, `Yacute`, `yacute`, `Thorn`, `thorn`, `minus`, `multiply`, `onesuperior`, `twosuperior`, `threesuperior`, `onehalf`, `onequarter`, `threequarters`, `franc`, `Gbreve`, `gbreve`, `Idotaccent`, `Scedilla`, `scedilla`, `Cacute`, `cacute`, `Ccaron`, `ccaron`, `dcroat`];
+},{"../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +229,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +406,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/post.ff3eb174.js.map

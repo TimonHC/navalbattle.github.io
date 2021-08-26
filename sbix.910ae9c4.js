@@ -117,79 +117,72 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/bitmap/sbix.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sbix = void 0;
+
+var _parser = require("../../../../parser.js");
+
+var _simpleTable = require("../../simple-table.js");
+
+var _lazy = _interopRequireDefault(require("../../../../lazy.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * The OpenType `sbix` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/sbix
+ *
+ * Notes:
+ *   The glyph count is derived from the 'maxp' table. Advance and side-bearing
+ *   glyph metrics are stored in the 'hmtx' table for horizontal layout, and
+ *   the 'vmtx' table for vertical layout.
+ *
+ */
+class sbix extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.version = p.uint16;
+    this.flags = p.flags(16);
+    this.numStrikes = p.uint32;
+    (0, _lazy.default)(this, `strikeOffsets`, () => [...new Array(this.numStrikes)].map(_ => p.Offset32)); // from the beginning of the 'sbix' table
+  } // TODO: add a strike accessor
+
+
+}
+
+exports.sbix = sbix;
+
+class Strike extends _parser.ParsedData {
+  constructor(p, numGlyphs) {
+    this.ppem = p.uint16;
+    this.ppi = p.uint16;
+    (0, _lazy.default)(this, `glyphDataOffsets`, () => [...new Array(numGlyphs + 1)].map(_ => p.Offset32)); // from the beginning of the strike data header
+  } // TODO: add a glyph data accessor
+
+
+}
+
+class GlyphData {
+  constructor(p) {
+    this.originOffsetX = p.int16;
+    this.originOffsetY = p.int16;
+    this.graphicType = p.tag; // The actual embedded graphic data has a byte length that is inferred from sequential
+    // entries in the strike.glyphDataOffsets array + the fixed size (8 bytes) of the preceding fields.
+
+    const len = 0;
+    (0, _lazy.default)(this, `data`, () => p.readBytes(len)); // TODO: make this.data load in the correct data
   }
 
-  return bundleURL;
 }
-
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
-
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
-  }
-
-  return '/';
-}
-
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
-}
-
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../../../parser.js":"node_modules/lib-font/src/parser.js","../../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js","../../../../lazy.js":"node_modules/lib-font/src/lazy.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +210,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +387,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/sbix.910ae9c4.js.map

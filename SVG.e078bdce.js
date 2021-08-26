@@ -117,79 +117,91 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/SVG.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.SVG = void 0;
+
+var _parser = require("../../../parser.js");
+
+var _simpleTable = require("../simple-table.js");
+
+/**
+ * The OpenType `SVG` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/SVG
+ */
+class SVG extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.version = uint16;
+    this.offsetToSVGDocumentList = p.Offset32; // from the start of the SVG table
+
+    p.currentPosition = this.tableStart + this.offsetToSVGDocumentList;
+    this.documentList = new SVGDocumentList(p);
   }
 
-  return bundleURL;
 }
+/**
+ * The SVG document list.
+ */
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
 
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
+exports.SVG = SVG;
+
+class SVGDocumentList extends _parser.ParsedData {
+  constructor(p) {
+    super(p);
+    this.numEntries = p.uint16;
+    this.documentRecords = [...new Array(this.numEntries)].map(_ => new SVGDocumentRecord(p));
+  }
+  /**
+   * Get an SVG document by ID
+   */
+
+
+  getDocument(documentID) {
+    let record = this.documentRecords[documentID];
+    if (!record) return "";
+    let offset = this.start + record.svgDocOffset;
+    this.parser.currentPosition = offset;
+    return this.parser.readBytes(record.svgDocLength);
+  }
+  /**
+   * Get an SVG document given a glyphID
+   */
+
+
+  getDocumentForGlyph(glyphID) {
+    let id = this.documentRecords.findIndex(d => d.startGlyphID <= glyphID && glyphID <= d.endGlyphID);
+    if (id === -1) return "";
+    return this.getDocument(id);
   }
 
-  return '/';
 }
+/**
+ * SVG document record, pointing to a specific SVG document encoding a
+ * range of glyphs as <g id="glyph{NUM}>...</g> where {NUM} is a number
+ * in the range [startGlyphId, endGlyphId].
+ */
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
+class SVGDocumentRecord {
+  constructor(p) {
+    this.startGlyphID = p.uint16;
+    this.endGlyphID = p.uint16;
+    this.svgDocOffset = p.Offset32; // from the beginning of the SVGDocumentList
 
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
+    this.svgDocLength = p.uint32;
   }
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
 }
-
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"../../../parser.js":"node_modules/lib-font/src/parser.js","../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +229,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +406,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/SVG.e078bdce.js.map

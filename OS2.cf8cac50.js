@@ -117,79 +117,75 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"node_modules/lib-font/src/opentype/tables/simple/OS2.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.OS2 = void 0;
+
+var _simpleTable = require("../simple-table.js");
+
+/**
+ * The OpenType `OS/2` table.
+ *
+ * See https://docs.microsoft.com/en-us/typography/opentype/spec/OS2
+ */
+class OS2 extends _simpleTable.SimpleTable {
+  constructor(dict, dataview) {
+    const {
+      p
+    } = super(dict, dataview);
+    this.version = p.uint16;
+    this.xAvgCharWidth = p.int16;
+    this.usWeightClass = p.uint16;
+    this.usWidthClass = p.uint16;
+    this.fsType = p.uint16;
+    this.ySubscriptXSize = p.int16;
+    this.ySubscriptYSize = p.int16;
+    this.ySubscriptXOffset = p.int16;
+    this.ySubscriptYOffset = p.int16;
+    this.ySuperscriptXSize = p.int16;
+    this.ySuperscriptYSize = p.int16;
+    this.ySuperscriptXOffset = p.int16;
+    this.ySuperscriptYOffset = p.int16;
+    this.yStrikeoutSize = p.int16;
+    this.yStrikeoutPosition = p.int16;
+    this.sFamilyClass = p.int16;
+    this.panose = [...new Array(10)].map(_ => p.uint8);
+    this.ulUnicodeRange1 = p.flags(32);
+    this.ulUnicodeRange2 = p.flags(32);
+    this.ulUnicodeRange3 = p.flags(32);
+    this.ulUnicodeRange4 = p.flags(32);
+    this.achVendID = p.tag;
+    this.fsSelection = p.uint16;
+    this.usFirstCharIndex = p.uint16;
+    this.usLastCharIndex = p.uint16;
+    this.sTypoAscender = p.int16;
+    this.sTypoDescender = p.int16;
+    this.sTypoLineGap = p.int16;
+    this.usWinAscent = p.uint16;
+    this.usWinDescent = p.uint16;
+    if (this.version === 0) return p.verifyLength();
+    this.ulCodePageRange1 = p.flags(32);
+    this.ulCodePageRange2 = p.flags(32);
+    if (this.version === 1) return p.verifyLength();
+    this.sxHeight = p.int16;
+    this.sCapHeight = p.int16;
+    this.usDefaultChar = p.uint16;
+    this.usBreakChar = p.uint16;
+    this.usMaxContext = p.uint16;
+    if (this.version <= 4) return p.verifyLength();
+    this.usLowerOpticalPointSize = p.uint16;
+    this.usUpperOpticalPointSize = p.uint16;
+    if (this.version === 5) return p.verifyLength();
   }
 
-  return bundleURL;
 }
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
-
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
-  }
-
-  return '/';
-}
-
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
-  };
-
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
-    }
-
-    cssTimeout = null;
-  }, 50);
-}
-
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"NavalBattleStyle.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"./content\\fonts\\Starjhol.ttf":[["Starjhol.044fcb66.ttf","content/fonts/Starjhol.ttf"],"content/fonts/Starjhol.ttf"],"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+exports.OS2 = OS2;
+},{"../simple-table.js":"node_modules/lib-font/src/opentype/tables/simple-table.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +213,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -394,4 +390,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/NavalBattleStyle.ae460350.js.map
+//# sourceMappingURL=/OS2.cf8cac50.js.map

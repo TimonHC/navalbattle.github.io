@@ -123,7 +123,7 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.humanGuessField = exports.aiField = exports.humanField = void 0;
+exports.humanGuessField = exports.aiField = exports.humanField = exports.gameIsOver = void 0;
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -149,6 +149,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var _RESOLUTION = 10;
 var _FLEET = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
+var gameIsOver = false;
+exports.gameIsOver = gameIsOver;
 
 var Field = /*#__PURE__*/function () {
   function Field() {
@@ -468,6 +470,7 @@ var PlayerField = /*#__PURE__*/function (_Field) {
 
       if (result) {
         alert('GG');
+        exports.gameIsOver = gameIsOver = true;
       }
     }
   }]);
@@ -1004,7 +1007,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56123" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54195" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
