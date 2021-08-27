@@ -52122,15 +52122,15 @@ var humanGuessField = new Field();
 exports.humanGuessField = humanGuessField;
 var aIguessField = new Field();
 },{}],"content/images/sprites/cell-incognito.png":[function(require,module,exports) {
-module.exports = "/cell-incognito.2270dfae.png";
+module.exports = "/navalbattle.github.io/cell-incognito.2270dfae.png";
 },{}],"content/images/sprites/cell-ship.png":[function(require,module,exports) {
-module.exports = "/cell-ship.5d9bdd7d.png";
+module.exports = "/navalbattle.github.io/cell-ship.5d9bdd7d.png";
 },{}],"content/images/sprites/cell-hit.png":[function(require,module,exports) {
-module.exports = "/cell-hit.0bbe0a27.png";
+module.exports = "/navalbattle.github.io/cell-hit.0bbe0a27.png";
 },{}],"content/images/sprites/cell-empty.png":[function(require,module,exports) {
-module.exports = "/cell-empty.11663f4c.png";
+module.exports = "/navalbattle.github.io/cell-empty.11663f4c.png";
 },{}],"content/images/slogosb.png":[function(require,module,exports) {
-module.exports = "/slogosb.e16e52dc.png";
+module.exports = "/navalbattle.github.io/slogosb.e16e52dc.png";
 },{}],"PixiSpaceBattle.js":[function(require,module,exports) {
 "use strict";
 
@@ -52206,47 +52206,53 @@ function setup() {
     firstField.y = firstFieldXY[1] + cellSize;
     secondField = new PIXI.Container();
     secondField.y += cellSize;
-  })(); //game over section
+  })();
 
+  (function createGameOverScene() {
+    //game over section
+    gameOverScene = new PIXI.Container();
+    goMessage = new PIXI.Text("The End!", {
+      fontFamily: 'Star Jedi',
+      fontSize: 200,
+      fill: 'orange',
+      align: 'center'
+    });
+    goMessage.x = innerWidth / 4;
+    goMessage.y = innerHeight / 2;
+    gameOverScene.addChild(goMessage);
+    gameOverScene.visible = false;
+  })();
 
-  gameOverScene = new PIXI.Container();
-  goMessage = new PIXI.Text("The End!", {
-    fontFamily: 'Star Jedi',
-    fontSize: 200,
-    fill: 'orange',
-    align: 'center'
-  });
-  goMessage.x = innerWidth / 4;
-  goMessage.y = innerHeight / 2;
-  gameOverScene.addChild(goMessage);
-  gameOverScene.visible = false;
-  introScene = new PIXI.Container();
-  introMessage = new PIXI.Text(introMessageText, {
-    fontFamily: 'Star Jedi',
-    fontSize: 200,
-    fill: 'orange',
-    align: 'center'
-  });
-  introMessage.x = innerWidth / 6;
-  introMessage.y = innerHeight;
-  introSkipButton = new PIXI.Text("skip intro ->", {
-    fontFamily: 'Star Jedi',
-    fontSize: 50,
-    fill: 'orange',
-    align: 'top'
-  });
-  introSkipButton.x = innerWidth / 3;
-  introSkipButton.buttonMode = true;
-  introSkipButton.interactive = true;
+  (function createIntroScene() {
+    introScene = new PIXI.Container();
+    introMessage = new PIXI.Text(introMessageText, {
+      fontFamily: 'Star Jedi',
+      fontSize: 200,
+      fill: 'orange',
+      align: 'center'
+    });
+    introMessage.x = innerWidth / 6;
+    introMessage.y = innerHeight;
+    introSkipButton = new PIXI.Text("skip intro ->", {
+      fontFamily: 'Star Jedi',
+      fontSize: 50,
+      fill: 'orange',
+      align: 'top'
+    });
+    introSkipButton.x = innerWidth / 3;
+    introSkipButton.buttonMode = true;
+    introSkipButton.interactive = true;
 
-  function skipIntro() {
-    state = play;
-  }
+    function skipIntro() {
+      state = play;
+    }
 
-  introSkipButton.on('click', skipIntro);
-  introScene.addChild(introMessage);
-  introScene.addChild(introSkipButton);
-  introScene.visible = true; //root container
+    introSkipButton.on('click', skipIntro);
+    introScene.addChild(introMessage);
+    introScene.addChild(introSkipButton);
+    introScene.visible = true;
+  })(); //root container
+
 
   stage = new PIXI.Container(); //injecting containers to root container
 
@@ -52256,7 +52262,8 @@ function setup() {
   stage.addChild(gameOverScene);
   stage.addChild(introScene); //appending root container to the html
 
-  document.body.appendChild(renderer.view);
+  document.body.appendChild(renderer.view); //filling game panels using imported data
+
   createUiField(_NewNavalBattle.humanField.battleField, firstFieldXY, firstField);
   createUiField(_NewNavalBattle.humanGuessField.battleField, secondFieldXY, secondField);
 
@@ -52446,7 +52453,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60951" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64755" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -52623,4 +52630,4 @@ function hmrAcceptRun(bundle, id) {
   }
 }
 },{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js","PixiSpaceBattle.js"], null)
-//# sourceMappingURL=/PixiSpaceBattle.debecf6e.js.map
+//# sourceMappingURL=/navalbattle.github.io/PixiSpaceBattle.debecf6e.js.map
